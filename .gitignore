@@ -1,0 +1,21 @@
+# macOS
+.DS_Store
+._*
+
+# Python caches and local environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+
+# Local credentials
+.env
+.env.*
+!.env.example
+
+# Generated simulation outputs
+/opt_output/

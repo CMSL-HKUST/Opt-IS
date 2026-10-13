@@ -1,0 +1,47 @@
+# Shared linear-solver settings for every case in this project.
+# Keep case YAML files focused on geometry, material, loading and output data.
+
+am:
+  thermal:
+    backend: petsc
+    ksp_type: gmres
+    pc_type: gamg
+    line_search: true
+    tolerance: 1.0e-6
+    relative_tolerance: 1.0e-8
+    initial_guess_predictor:
+      enabled: true
+      reference_heat_capacity_j_kgk: 500.0
+      scale: 1.0
+      # Keep the predictor conservative: it only nudges the previous
+      # converged temperature instead of applying the full peak-source rise.
+      max_temperature_rise_c: 50.0
+  mechanics:
+    backend: petsc
+    ksp_type: preonly
+    pc_type: lu
+    factor_solver_type: mumps
+    line_search: true
+    tolerance: 1.0e-6
+    relative_tolerance: 1.0e-8
+
+optimization:
+  backend: petsc
+  ksp_type: preonly
+  pc_type: lu
+  factor_solver_type: mumps
+
+forward:
+  forward:
+    backend: petsc
+    ksp_type: gmres
+    pc_type: hypre
+    factor_solver_type: mumps
+    line_search: true
+    tolerance: 1.0e-6
+    relative_tolerance: 1.0e-8
+  cutting:
+    backend: spsolve
+    line_search: true
+    tolerance: 1.0e-6
+    relative_tolerance: 1.0e-8

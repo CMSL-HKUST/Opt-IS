@@ -1,0 +1,96 @@
+case:
+  name: cantilever_inherent_strain
+runtime:
+  cuda_visible_devices: '0'
+  enable_x64: true
+  xla_preallocate: false
+paths:
+  relative_to: config
+  mesh: mesh/am25.inp
+  output_directory: ../../../../opt_output/cantilever/forward
+  vtk_directory: ../../../../opt_output/cantilever/forward/vtk
+mesh:
+  element_type: HEX8
+  scale_to_meter: 0.001
+geometry:
+  # am25.inp spans z=-25.2 mm to z=0 mm.
+  base_plate_height_m: -0.0125
+  fixed_plane_z_m: -0.0252
+  fixed_plane_tolerance_m: 0.0001
+activation:
+  z_tolerance_m: 1.0e-05
+toolpath:
+  mode: generated
+  number_of_layers: 25
+  layer_height_m: 0.0005
+  layer_duration_s: 1.0
+  scan:
+    length_m: 0.5
+    width_m: 0.03
+    y_m: 0.0
+material:
+  elastic_modulus_pa: 2.08e11
+  poisson_ratio: 0.277
+  initial_yield_stress_pa: 7.25e8
+  hardening_modulus_pa: 7.571428571428571e8
+  maximum_yield_stress_pa: 9.90e8
+inherent_strain:
+  default:
+    xx: -0.0032
+    yy: -0.0032
+    zz: 0.0064
+  increments_per_layer: 2
+  save_each_increment: false
+cutting:
+  enabled: true
+  mode: node_release
+  z_cut_m: -0.0125
+  x_range_m:
+  - 0.0
+  - 0.055
+  interface_tolerance_m: 1.0e-06
+  gap_m: 0.0
+  tag: cut_block
+postprocess:
+  enabled: true
+  output_directory: ../../../../opt_output/cantilever/forward/postprocess
+  save_plot: true
+  jobs:
+  - name: pre_cut_strain_line_1
+    source: forward
+    variables:
+    - name: eps_e_xx
+      location: cell
+    - name: eps_e_zz
+      location: cell
+    line:
+      start_m:
+      - 0.0
+      - 0.0
+      - -0.00145
+      end_m:
+      - 0.075
+      - 0.0
+      - -0.00145
+      num_points: 150
+  - name: post_cut_displacement_line
+    source: cutting
+    variables:
+    - name: u
+      location: point
+      components:
+      - z
+      label: displacement
+    line:
+      start_m:
+      - 0.0005
+      - 0.0
+      - 0.0
+      end_m:
+      - 0.0705
+      - 0.0
+      - 0.0
+      num_points: 11
+output:
+  clear_vtk_directory: true
+  displacement_scale: 1000.0

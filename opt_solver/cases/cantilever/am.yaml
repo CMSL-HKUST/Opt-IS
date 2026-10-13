@@ -1,0 +1,250 @@
+# IN625 PARTIAL CORRECTION / NOT YET VALIDATED FOR PRODUCTION.
+# Source: opt_solver/1-s2.0-S2214860425003902-mmc1.docx, Table S6.
+# Confirmed tables below use Kelvin; blank source entries are omitted, not zero.
+# Density, phase data and cp remain UNVERIFIED legacy values (see TODOs).
+# Solver clamps outside each table: E/nu/k end at 870 degC, plastic data at 800 degC.
+# These endpoint holds are NOT a validated high-temperature/melting model.
+case:
+  name: dc_scan
+runtime:
+  cuda_visible_devices: '0'
+  xla_preallocate: false
+paths:
+  relative_to: config
+  mesh: mesh/small.inp
+  output_directory: ../../../../opt_output/cantilever/am
+  vtk_directory: ../../../../opt_output/cantilever/am/vtk
+  mesh_output: ../../../../opt_output/cantilever/am/mesh/small_mesh.vtu
+mesh:
+  element_type: HEX8
+  scale_to_meter: 0.001
+geometry:
+  substrate_bottom_z_m: -0.001
+  bottom_tolerance_m: 0.0001
+  material_interface_z_m: 0.0
+  base_plate_height_m: 0.0
+thermal:
+  initial_temperature_c: 25.0
+  convection:
+    coefficient_w_m2k: 10.0
+    ambient_temperature_c: 25.0
+  radiation:
+    stefan_boltzmann: 5.67e-08
+    emissivity: 0.2
+    ambient_temperature_c: 25.0
+mechanics:
+  fixed_plane_z_m: -0.001
+  fixed_plane_tolerance_m: 0.0001
+  thermal_strain_reference_temperature_c: 20.0
+  # TODO: cutoff uses the UNVERIFIED legacy solidus below (1533 K).
+  # Recheck it with IN625 phase data before production calculations.
+  thermal_strain_cutoff: solidus
+phase:
+  powder: 0
+  liquid: 1
+  solid: 2
+heat_source:
+  # TODO: retained Goldak model; S5 instead specifies a Gaussian volume source.
+  type: goldak_double_ellipsoid
+  power_w: 195.0
+  efficiency: 0.37
+  front_radius_x_m: 5.0e-05
+  rear_radius_x_m: 5.0e-05
+  radius_y_m: 5.0e-05
+  radius_z_m: 5.0e-05
+  front_fraction: 1.0
+  rear_fraction: 1.0
+  surface_source:
+    enabled: false
+    radius_x_m: 5.0e-05
+    radius_y_m: 5.0e-05
+activation:
+  active_radius_factor: 2.0
+toolpath:
+  mode: generated
+  pattern: box_zigzag
+  number_of_layers: 2
+  layer_height_m: 2.0e-05
+  # TODO: retained 200 s AFTER EACH LAYER; S5 idle time is 6 s.
+  # Resolve interlayer versus final cooling before changing this setting.
+  cooling_time_s: 200.0
+  scan:
+    length_x_m: 0.0005
+    length_y_m: 0.0005
+    velocity_m_s: 0.80
+    hatch_spacing_m: 0.0001
+    center_x_m: 0.0
+    center_y_m: 0.0
+    first_layer_direction: x
+    rotate_layers: true
+    zigzag: true
+time_stepping:
+  laser_on_dt_s: 6.25e-05
+  laser_off_steps_per_segment: 50
+  mechanics_interval: 1
+output:
+  clear_vtk_directory: true
+materials:
+  upper_region: &id001
+    name: IN625
+    # TODO: density/latent heat/solidus/liquidus below are UNVERIFIED legacy values.
+    # Table S6 does not provide them. Retained, NOT validated as IN625.
+    density_kg_m3: 8190.0
+    latent_heat_j_kg: 286000.0
+    solidus_temperature_k: 1533.0
+    liquidus_temperature_k: 1609.0
+    conductivity:
+      temperature_k:
+      - 293.15
+      - 373.15
+      - 473.15
+      - 573.15
+      - 673.15
+      - 823.15
+      - 923.15
+      - 1023.15
+      - 1143.15
+      values:
+      - 9.8
+      - 10.7
+      - 12.5
+      - 14.1
+      - 15.6
+      - 17.4
+      - 18.9
+      - 20.1
+      - 22.7
+    # TODO: UNVERIFIED legacy cp [J/(kg K)], NOT the IN625 Table S6 data.
+    # S6 gives rho*cp with a suspect unit heading (MJ/mm3K).
+    # Verify the volumetric unit and density before converting to mass-specific cp.
+    heat_capacity:
+      temperature_k:
+      - 298
+      - 373
+      - 473
+      - 573
+      - 673
+      - 773
+      - 873
+      - 973
+      - 1073
+      - 1173
+      - 1273
+      - 1373
+      - 1443
+      - 1609
+      values:
+      - 435
+      - 455
+      - 479
+      - 497
+      - 515
+      - 527
+      - 558
+      - 568
+      - 680
+      - 640
+      - 620
+      - 640
+      - 650
+      - 720
+    elastic_modulus:
+      temperature_k:
+      - 293.15
+      - 373.15
+      - 473.15
+      - 573.15
+      - 673.15
+      - 823.15
+      - 923.15
+      - 1023.15
+      - 1143.15
+      values_gpa:
+      - 208
+      - 204
+      - 198
+      - 192
+      - 186
+      - 179
+      - 170
+      - 161
+      - 148
+    # S6 leaves beta at 20 degC blank. No zero or invented point is inserted.
+    # Existing interpolation clamps below 100 degC to 5.56 micro/K (assumption).
+    thermal_expansion:
+      temperature_k:
+      - 373.15
+      - 473.15
+      - 573.15
+      - 673.15
+      - 823.15
+      - 923.15
+      - 1023.15
+      - 1143.15
+      values_micro_per_k:
+      - 5.56
+      - 6.28
+      - 6.61
+      - 7.38
+      - 7.93
+      - 9.47
+      - 10.5
+      - 11.6
+    poisson_ratio:
+      temperature_k:
+      - 293.15
+      - 373.15
+      - 473.15
+      - 573.15
+      - 673.15
+      - 823.15
+      - 923.15
+      - 1023.15
+      - 1143.15
+      values:
+      - 0.277
+      - 0.28
+      - 0.286
+      - 0.29
+      - 0.295
+      - 0.305
+      - 0.321
+      - 0.34
+      - 0.336
+    yield_stress:
+      temperature_k:
+      - 293.15
+      - 573.15
+      - 873.15
+      - 1073.15
+      values_mpa:
+      - 725
+      - 610
+      - 515
+      - 100
+    # Derived linear fit H=(sigma_at_ep_0.35 - sigma_at_ep_0)/0.35, in GPa.
+    hardening_modulus:
+      temperature_k:
+      - 293.15
+      - 573.15
+      - 873.15
+      - 1073.15
+      values_gpa:
+      - 0.7571428571428572
+      - 0.14285714285714285
+      - 0.1285714285714286
+      - 0.05714285714285715
+    # Modeling assumption, matching optimization.yaml: saturation at ep=0.35.
+    # S6 does not specify behavior beyond ep=0.35; do not use a fixed 1.2 factor.
+    maximum_yield_stress:
+      temperature_k:
+      - 293.15
+      - 573.15
+      - 873.15
+      - 1073.15
+      values_mpa:
+      - 990
+      - 660
+      - 560
+      - 120
+  lower_region: *id001

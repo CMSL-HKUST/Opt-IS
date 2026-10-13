@@ -1,28 +1,28 @@
 # ICIS_solver
 
-增材制造（AM）热-力模拟、固有应变优化与宏观正向求解代码。
+Code for additive manufacturing (AM) thermomechanical simulation, inherent strain optimization, and macroscale forward analysis.
 
-## 目录结构
+## Directory Structure
 
-- `am_solver/`：AM 热-力求解器。
-- `IS_solver/`：固有应变正向求解与优化模块。
-- `opt_solver/`：串联 AM、固有应变优化和宏观正向求解的流程入口。
-- `opt_solver/cases/cantilever/`：悬臂梁案例配置与输入网格。
-- `solver_config.yaml`：各阶段共用的求解器配置。
+- `am_solver/`: AM thermomechanical solver.
+- `IS_solver/`: Inherent strain forward analysis and optimization modules.
+- `opt_solver/`: Workflow entry point connecting AM simulation, inherent strain optimization, and macroscale forward analysis.
+- `opt_solver/cases/cantilever/`: Cantilever case configuration and input meshes.
+- `solver_config.yaml`: Shared solver configuration for all stages.
 
-流程说明见 [opt_solver/README.md](opt_solver/README.md)。其中案例命令中的 `dc` 在当前目录结构下应替换为 `cantilever`；实际求解器参数以根目录的 `solver_config.yaml` 为准。
+See [opt_solver/README.md](opt_solver/README.md) for workflow instructions. With the current directory structure, replace `dc` with `cantilever` in the example case commands. Refer to `solver_config.yaml` in the repository root for the actual solver parameters.
 
-## 版本管理
+## Version Control
 
-本仓库保存源代码、案例配置与输入网格。Python 缓存、本地虚拟环境、环境变量文件和仓库内的 `opt_output/` 输出目录由 `.gitignore` 排除。
+This repository tracks source code, case configurations, and input meshes. Python caches, local virtual environments, environment variable files, and `opt_output/` directories within the repository are excluded by `.gitignore`.
 
-修改并检查后，在仓库根目录执行：
+After making and checking your changes, run the following commands from the repository root:
 
 ```bash
 git status
 git add .
-git commit -m "说明这次修改的内容"
+git commit -m "Describe the changes made in this commit"
 git push
 ```
 
-在另一台电脑继续工作前，先执行 `git pull --ff-only`，获取远程最新提交。
+Before continuing work on another computer, run `git pull --ff-only` to fetch and apply the latest commits from the remote repository.

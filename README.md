@@ -1,4 +1,4 @@
-# clean_version
+# ICIS_solver
 
 增材制造（AM）热-力模拟、固有应变优化与宏观正向求解代码。
 

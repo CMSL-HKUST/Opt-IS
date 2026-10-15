@@ -29,12 +29,12 @@ Explore the related benchmarks and research on my personal website, **[Residual 
 
 <table>
   <tr>
-    <td width="50%"><img src="docs/media/single-track.gif" alt="Recorded single-track AM scanning simulation, retaining the original field color legend" width="100%"></td>
-    <td width="50%"><img src="docs/media/thin-wall.gif" alt="Recorded thin-wall AM build simulation, retaining the original field color legend" width="100%"></td>
+    <td width="50%" align="center"><img src="docs/media/single-track.gif" alt="Recorded single-track AM scanning simulation, retaining the original field color legend" width="100%"><br><strong>Single-track scanning</strong></td>
+    <td width="50%" align="center"><img src="docs/media/thin-wall.gif" alt="Recorded thin-wall AM build simulation, retaining the original field color legend" width="100%"><br><strong>Thin-wall build</strong></td>
   </tr>
   <tr>
-    <td width="50%"><img src="docs/media/cantilever.gif" alt="Recorded cantilever simulation displaying the eps_e_xx elastic strain field" width="100%"></td>
-    <td width="50%"><img src="docs/media/bridge.gif" alt="Recorded bridge simulation displaying the eps_e_xx elastic strain field" width="100%"></td>
+    <td width="50%" align="center"><img src="docs/media/cantilever.gif" alt="Recorded cantilever simulation displaying the eps_e_xx elastic strain field" width="100%"><br><strong>Cantilever</strong></td>
+    <td width="50%" align="center"><img src="docs/media/bridge.gif" alt="Recorded bridge simulation displaying the eps_e_xx elastic strain field" width="100%"><br><strong>Bridge</strong></td>
   </tr>
 </table>
 
@@ -42,19 +42,7 @@ These animations come from existing simulation recordings in the author's `opt_o
 
 ## Workflow
 
-```mermaid
-flowchart LR
-    A[Small mesh + AM parameters] --> B[AM thermomechanical simulation]
-    B --> C[Latest AM reference VTU]
-    C --> D[Inherent strain optimization]
-    D --> E[epsilon_result.json]
-    E --> F[Macroscale forward simulation]
-    G[Large mesh + forward parameters] --> F
-    F --> H[Cutting + postprocessing]
-    S[Shared solver_config.yaml] -.-> B
-    S -.-> D
-    S -.-> F
-```
+![OPT-IS workflow: thermomechanical AM, inherent strain optimization, and macroscale forward simulation, using a shared solver configuration.](docs/media/workflow.png)
 
 | Stage | Entry point | Role |
 | :--- | :--- | :--- |

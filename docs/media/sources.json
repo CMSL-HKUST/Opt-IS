@@ -10,10 +10,10 @@
       "frame_count": 103,
       "size_px": [
         640,
-        448
+        360
       ],
-      "bytes": 683063,
-      "processing": "Full uncropped source frame scaled to 640 px; title/footer added; shared 256-color GIF palette."
+      "bytes": 696365,
+      "processing": "Full uncropped source frames scaled to 640 px with a shared 256-color GIF palette. No embedded title bars, captions, or footers; captions appear below the images in README."
     },
     {
       "file": "thin-wall.gif",
@@ -24,10 +24,10 @@
       "frame_count": 120,
       "size_px": [
         640,
-        448
+        360
       ],
-      "bytes": 548106,
-      "processing": "Full uncropped source frame scaled to 640 px; title/footer added; shared 256-color GIF palette."
+      "bytes": 550819,
+      "processing": "Full uncropped source frames scaled to 640 px with a shared 256-color GIF palette. No embedded title bars, captions, or footers; captions appear below the images in README."
     },
     {
       "file": "cantilever.gif",
@@ -38,10 +38,10 @@
       "frame_count": 50,
       "size_px": [
         640,
-        448
+        360
       ],
-      "bytes": 665688,
-      "processing": "Full uncropped source frame scaled to 640 px; title/footer added; shared 256-color GIF palette."
+      "bytes": 672248,
+      "processing": "Full uncropped source frames scaled to 640 px with a shared 256-color GIF palette. No embedded title bars, captions, or footers; captions appear below the images in README."
     },
     {
       "file": "bridge.gif",
@@ -52,14 +52,15 @@
       "frame_count": 24,
       "size_px": [
         640,
-        448
+        360
       ],
-      "bytes": 147822,
-      "processing": "Full uncropped source frame scaled to 640 px; title/footer added; shared 256-color GIF palette."
+      "bytes": 150435,
+      "processing": "Full uncropped source frames scaled to 640 px with a shared 256-color GIF palette. No embedded title bars, captions, or footers; captions appear below the images in README."
     }
   ],
   "static_assets": {
-    "social-preview.png": "1280x640 repository sharing cover using cantilever.avi at 2s.",
-    "project-icon.png": "512x512 project image using the same recorded simulation frame."
+    "social-preview.png": "White-background 1280x640 repository sharing cover using cantilever.avi at 2s.",
+    "project-icon.png": "White-background 512x512 project image using the same recorded simulation frame.",
+    "workflow.png": "White-background static PNG documenting the AM -> inherent strain optimization -> macro forward workflow and the shared solver policy."
   }
 }

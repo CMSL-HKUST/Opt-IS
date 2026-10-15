@@ -1,0 +1,65 @@
+{
+  "description": "GIFs transcoded from existing simulation AVI files; original fields and color legends retained. Playback is resampled to the stated duration; not a physical-time scale. No solver run is performed.",
+  "assets": [
+    {
+      "file": "single-track.gif",
+      "source": "single_track.avi",
+      "source_sha256": "6386f79c54a7dbea0f520e92a5892478a2a65af636b89390645bca10fca4eb58",
+      "source_duration_s": 10.25,
+      "playback_duration_s": 11.0,
+      "frame_count": 103,
+      "size_px": [
+        640,
+        448
+      ],
+      "bytes": 683063,
+      "processing": "Full uncropped source frame scaled to 640 px; title/footer added; shared 256-color GIF palette."
+    },
+    {
+      "file": "thin-wall.gif",
+      "source": "thin-wall.avi",
+      "source_sha256": "e669b39a0151c6bca8dd85ebbcc2fd3ca3597d2ff90a8d858a413d2c980fb45a",
+      "source_duration_s": 22.0,
+      "playback_duration_s": 12.7,
+      "frame_count": 120,
+      "size_px": [
+        640,
+        448
+      ],
+      "bytes": 548106,
+      "processing": "Full uncropped source frame scaled to 640 px; title/footer added; shared 256-color GIF palette."
+    },
+    {
+      "file": "cantilever.gif",
+      "source": "cantilever.avi",
+      "source_sha256": "beec5a3711da292f848e27267c763f4ca26220fd7a51a6f662ca123d8923587f",
+      "source_duration_s": 5.0,
+      "playback_duration_s": 5.7,
+      "frame_count": 50,
+      "size_px": [
+        640,
+        448
+      ],
+      "bytes": 665688,
+      "processing": "Full uncropped source frame scaled to 640 px; title/footer added; shared 256-color GIF palette."
+    },
+    {
+      "file": "bridge.gif",
+      "source": "bridge.avi",
+      "source_sha256": "1b074eaf626b299a490140313c37f716754354dd1889a6670eefa167d0803a04",
+      "source_duration_s": 18.0,
+      "playback_duration_s": 12.58,
+      "frame_count": 24,
+      "size_px": [
+        640,
+        448
+      ],
+      "bytes": 147822,
+      "processing": "Full uncropped source frame scaled to 640 px; title/footer added; shared 256-color GIF palette."
+    }
+  ],
+  "static_assets": {
+    "social-preview.png": "1280x640 repository sharing cover using cantilever.avi at 2s.",
+    "project-icon.png": "512x512 project image using the same recorded simulation frame."
+  }
+}

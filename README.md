@@ -1,6 +1,8 @@
-# ICIS_solver
+# OPT-IS
 
 Code for additive manufacturing (AM) thermomechanical simulation, inherent strain optimization, and macroscale forward analysis.
+
+Personal website: [Residual Stress Hub](https://dongdaoyang.github.io/).
 
 ## Directory Structure
 

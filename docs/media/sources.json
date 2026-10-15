@@ -59,7 +59,7 @@
     }
   ],
   "static_assets": {
-    "social-preview.png": "White-background 1280x640 repository sharing cover using cantilever.avi at 2s.",
+    "social-preview.png": "Minimal white-background 1280x640 cover with the OPT-IS title, inherent strain optimization subtitle, short description, and a simulation frame from cantilever.avi at 2s.",
     "project-icon.png": "White-background 512x512 project image using the same recorded simulation frame.",
     "workflow.png": "White-background static PNG documenting the AM -> inherent strain optimization -> macro forward workflow and the shared solver policy."
   }

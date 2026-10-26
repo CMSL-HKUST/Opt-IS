@@ -21,16 +21,37 @@ The repository includes a **cantilever** case with input meshes and stage config
 
 ## Simulation gallery
 
-<table>
-  <tr>
-    <td width="50%" align="center"><img src="docs/media/single-track.gif" alt="Recorded single-track AM scanning simulation, retaining the original field color legend" width="100%"><br><strong>Single-track scanning</strong></td>
-    <td width="50%" align="center"><img src="docs/media/thin-wall.gif" alt="Recorded thin-wall AM build simulation, retaining the original field color legend" width="100%"><br><strong>Thin-wall build</strong></td>
-  </tr>
-  <tr>
-    <td width="50%" align="center"><img src="docs/media/cantilever.gif" alt="Recorded cantilever simulation displaying the eps_e_xx elastic strain field" width="100%"><br><strong>Cantilever</strong></td>
-    <td width="50%" align="center"><img src="docs/media/bridge.gif" alt="Recorded bridge simulation displaying the eps_e_xx elastic strain field" width="100%"><br><strong>Bridge</strong></td>
-  </tr>
-</table>
+<p align="center">
+  <img src="docs/media/single-track.gif" alt="Temperature field during single-track AM scanning" width="600">
+</p>
+<p align="center">
+  <strong>Single-track scanning</strong><br>
+  <em>Temperature evolution as a moving heat source scans a single track. The localized hot zone travels along the scan path while heat diffuses into the substrate.</em>
+</p>
+
+<p align="center">
+  <img src="docs/media/thin-wall.gif" alt="Temperature field during a thin-wall AM build" width="600">
+</p>
+<p align="center">
+  <strong>Thin-wall build</strong><br>
+  <em>Thermal simulation of a thin wall built through successive scanning passes. The animation shows localized heating and cooling as the build progresses.</em>
+</p>
+
+<p align="center">
+  <img src="docs/media/cantilever.gif" alt="Axial elastic strain eps_e_xx in a cantilever simulation" width="600">
+</p>
+<p align="center">
+  <strong>Cantilever</strong><br>
+  <em>Evolution of axial elastic strain (eps_e_xx) in a cantilever build. The field shows the spatial variation of elastic strain across the part and its supporting structure.</em>
+</p>
+
+<p align="center">
+  <img src="docs/media/bridge.gif" alt="Axial elastic strain eps_e_xx in a bridge simulation" width="600">
+</p>
+<p align="center">
+  <strong>Bridge</strong><br>
+  <em>Evolution of axial elastic strain (eps_e_xx) in a bridge-shaped build. The animation follows the strain distribution as the two supports and connecting span take shape.</em>
+</p>
 
 Archived simulations of single-track scanning, a thin-wall build, a cantilever, and a bridge. The original field legends are retained; animation playback does not represent physical time. Recording sources and conversion details are documented in [media provenance](docs/media/sources.json).
 

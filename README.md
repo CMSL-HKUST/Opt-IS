@@ -15,6 +15,7 @@ A small-scale AM simulation provides the reference stress and displacement field
 - **Local process simulation:** model thermal loading, material activation, and elastoplastic response during AM scanning.
 - **Inherent strain calibration:** optimize the normal strain components `xx`, `yy`, and `zz`, with optional `xx = yy` tying, against reference fields in selected regions.
 - **Macroscale prediction:** apply the calibrated strain to a larger mesh and evaluate the response before and after cutting.
+- **Element activation and deactivation:** the inherent strain solver activates elements layer by layer to represent material addition during the build. For material removal, it supports element deactivation through progressive release of the selected elements' stress contribution, allowing the remaining structure to re-equilibrate. Both operations use element masks while retaining the original mesh.
 - **Case-based execution:** manage meshes and stage settings through YAML files, share one solver policy, and resume from an existing stage result.
 
 The repository includes a **cantilever** case with input meshes and stage configurations. The gallery below also shows archived simulations of other geometries.

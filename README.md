@@ -1,7 +1,7 @@
 # OPT-IS
 
 <p align="center">
-  <img src="docs/media/social-preview.png" alt="OPT-IS — inherent strain optimization, from local AM physics to macroscale prediction" width="100%">
+  <img src="docs/media/social-preview.png" alt="OPT-IS — local AM small model linked by an inherent strain transfer arrow to a macroscale cantilever model" width="100%">
 </p>
 
 <p align="center">

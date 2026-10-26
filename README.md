@@ -1,3 +1,5 @@
+# OPT-IS
+
 <p align="center">
   <img src="docs/media/social-preview.png" alt="OPT-IS — inherent strain optimization, from local AM physics to macroscale prediction" width="100%">
 </p>
@@ -6,24 +8,16 @@
   <strong>Additive manufacturing · Inherent strain optimization · Residual stress &amp; distortion</strong>
 </p>
 
-<p align="center">
-  <a href="https://dongdaoyang.github.io/"><img src="https://img.shields.io/badge/Residual_Stress_Hub-Visit_website-16b8a6?style=for-the-badge" alt="Visit Residual Stress Hub"></a>
-  <img src="https://img.shields.io/badge/Autodiff-JAX-6273d9?style=for-the-badge" alt="Automatic differentiation with JAX">
-  <img src="https://img.shields.io/badge/Finite_Elements-JAX--FEM-3479aa?style=for-the-badge" alt="Finite elements with JAX-FEM">
-  <img src="https://img.shields.io/badge/Linear_Solvers-PETSc-7952b3?style=for-the-badge" alt="PETSc linear solvers">
-</p>
+**OPT-IS** is a finite element workflow for calibrating inherent strain from local additive manufacturing (AM) simulations and applying it to macroscale residual stress and distortion prediction. It connects thermomechanical process simulation, gradient-based parameter optimization, and structural analysis in one configurable pipeline.
 
-<p align="center">
-  <a href="#simulation-gallery">Simulation gallery</a> ·
-  <a href="#workflow">Workflow</a> ·
-  <a href="#quick-start">Quick start</a> ·
-  <a href="#configuration">Configuration</a> ·
-  <a href="https://dongdaoyang.github.io/">Personal website</a>
-</p>
+A small-scale AM simulation provides the reference stress and displacement fields. The optimizer fits the inherent strain components on the same mesh, then transfers the calibrated vector to a larger model for forward analysis, cutting, and profile extraction. JAX and JAX-FEM provide automatic differentiation and finite element infrastructure; PETSc provides the configured linear solvers.
 
-**OPT-IS** connects a local thermomechanical AM simulation to inherent strain calibration and macroscale forward analysis. The workflow uses the AM fields as a reference, identifies an inherent strain vector on the same small mesh, and transfers that vector to a larger model for forward simulation, cutting, and postprocessing.
+- **Local process simulation:** model thermal loading, material activation, and elastoplastic response during AM scanning.
+- **Inherent strain calibration:** optimize the normal strain components `xx`, `yy`, and `zz`, with optional `xx = yy` tying, against reference fields in selected regions.
+- **Macroscale prediction:** apply the calibrated strain to a larger mesh and evaluate the response before and after cutting.
+- **Case-based execution:** manage meshes and stage settings through YAML files, share one solver policy, and resume from an existing stage result.
 
-Explore the related benchmarks and research on my personal website, **[Residual Stress Hub](https://dongdaoyang.github.io/)**.
+The repository includes a **cantilever** case with input meshes and stage configurations. The gallery below also shows archived simulations of other geometries.
 
 ## Simulation gallery
 
@@ -38,7 +32,7 @@ Explore the related benchmarks and research on my personal website, **[Residual 
   </tr>
 </table>
 
-These animations come from existing simulation recordings in the author's `opt_output/` directory: `single_track.avi`, `thin-wall.avi`, `cantilever.avi`, and `bridge.avi`. The original rendered frames and color legends are retained; playback is resampled for display and does not represent a physical-time scale. They illustrate archived runs; the checked-in workflow case is `cantilever`. See [media provenance](docs/media/sources.json) for source hashes and conversion details.
+Archived simulations of single-track scanning, a thin-wall build, a cantilever, and a bridge. The original field legends are retained; animation playback does not represent physical time. Recording sources and conversion details are documented in [media provenance](docs/media/sources.json).
 
 ## Workflow
 
@@ -57,7 +51,7 @@ The optimizer and AM reference must use identical node and element counts and or
 
 Run commands from the repository root in a solver environment containing **NumPy, PyYAML, JAX, JAX-FEM, MeshIO, SciPy, and petsc4py**. Profile extraction also uses **PyVista**; plotting uses **Matplotlib**. The current PETSc policy requires the configured MUMPS, GAMG, and hypre support in your PETSc installation.
 
-If using the author's existing Conda environment:
+Activate your solver environment before running the workflow. For an environment named `jax-fem-env`:
 
 ```bash
 conda activate jax-fem-env
@@ -82,7 +76,7 @@ python opt_solver/run.py cantilever --from-stage optimization
 python opt_solver/run.py cantilever --from-stage forward
 ```
 
-The dry run creates generated configurations and a workflow manifest in the configured output directory. A solver environment is still needed for the full computation.
+The dry run checks input paths and generates stage configurations and a workflow manifest without running the simulation. Its forward configuration uses the initial strain parameters; a full run replaces them with the calibrated values. The dry run itself only requires Python and PyYAML.
 
 ## Configuration
 
@@ -136,6 +130,12 @@ reference:
 
 Use `1.0` when the reference VTU already stores displacement in meters.
 
+### Optimization results
+
+The cantilever case uses L-BFGS-B with `xx = yy` and an independent `zz` component. Its objective combines normal stress, a von Mises measure computed from the diagonal stress components, top-surface vertical displacement, and in-plane relative contraction. Parameter bounds, objective weights, and regions of interest are configured in `optimization.yaml`.
+
+Review `optimization/epsilon_result.json` for the fitted vector and convergence diagnostics. The example sets `stages.optimization.require_success: false`, so the forward stage can use the current best vector even if the optimizer reaches its iteration limit. Set this to `true` in the case's `config.yaml` to require successful convergence before proceeding.
+
 ## Repository layout
 
 ```text
@@ -147,7 +147,7 @@ OPT-IS/
 ├── opt_solver/
 │   ├── run.py                  # Workflow entry point
 │   └── cases/cantilever/       # Case YAML files and input meshes
-└── docs/media/                 # GIFs, project image, and sharing cover
+└── docs/media/                 # README cover, workflow diagram, GIFs, and project icon
 ```
 
 ## Outputs
@@ -168,23 +168,3 @@ Desktop/
 ```
 
 Keep the repository and output directory in the same relative positions when moving them. Generated configurations and manifests may contain absolute paths; regenerate configurations after relocating the project. Source code, case configuration, and input meshes are versioned; full simulation outputs stay separate. Only the compact presentation assets in `docs/media/` are included here.
-
-<details>
-<summary><strong>Working across computers</strong></summary>
-
-Before continuing work on another computer:
-
-```bash
-git pull --ff-only
-```
-
-After reviewing local changes:
-
-```bash
-git status
-git add <files-you-changed>
-git commit -m "Describe the changes"
-git push
-```
-
-</details>

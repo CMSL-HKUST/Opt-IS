@@ -59,7 +59,7 @@
     }
   ],
   "static_assets": {
-    "social-preview.png": "White-background 2:1 Opt-IS conceptual cover edited with the built-in imagegen tool. Shows a local small AM model and a macroscale cantilever connected by an inherent-strain-transfer arrow. Both models use a unified blue-to-white illustrative contour palette. Typography and arrow use the website blue-gray branding. This cover is not a quantitative field plot.",
+    "social-preview.png": "White-background 2:1 Opt-IS conceptual cover edited with the built-in imagegen tool. Shows a local small AM model and a macroscale cantilever connected by an inherent-strain-transfer arrow. Both models use a unified blue-to-red illustrative contour palette. Typography and arrow use the website blue-gray branding. This cover is not a quantitative field plot.",
     "project-icon.png": "White-background 512x512 project image using the same recorded simulation frame.",
     "workflow.png": "Static three-stage workflow diagram recolored with the built-in imagegen tool to match Residual Stress Hub blue-gray branding: AM -> inherent strain optimization -> macro forward, with shared solver policy. Text and diagram content preserved."
   },
@@ -71,11 +71,10 @@
     "border": "#d5dde3",
     "background": "#ffffff",
     "cover_model_contours": [
-      "#214e91",
-      "#3267b1",
-      "#9bc4ed",
-      "#f6fbff"
+      "#2854a1",
+      "#f1f3f5",
+      "#c42c3b"
     ],
-    "note": "Website branding applies to text and diagrams; model contours use a separate, matching blue-white palette."
+    "note": "Website branding applies to text and diagrams; both model contours use a separate, matching blue-white-red diverging palette."
   }
 }

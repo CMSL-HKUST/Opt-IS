@@ -1,0 +1,176 @@
+case:
+  name: dc_inherent_strain
+
+runtime:
+  cuda_visible_devices: "0"
+  enable_x64: true
+  xla_preallocate: false
+  # xla_memory_fraction: 0.7
+
+paths:
+  relative_to: config
+  mesh: mesh/dc5_36.inp
+  output_directory: ../../../../opt_output/IS_solver/dc
+  vtk_directory: ../../../../opt_output/IS_solver/dc/vtk_cut
+
+mesh:
+  element_type: HEX8
+
+  # Coordinates in the Abaqus input file are in mm;
+  # multiply by 0.001 after loading to convert to m.
+  scale_to_meter: 0.001
+
+geometry:
+  # Initially active region: z <= base_plate_height
+  base_plate_height_m: 0.02
+
+  # Actual fixed bottom plane.
+  fixed_plane_z_m: 0.01
+  fixed_plane_tolerance_m: 0.0001
+
+activation:
+  z_tolerance_m: 1.0e-5
+
+toolpath:
+  mode: generated
+
+  #number_of_layers: 25
+  #layer_height_m: 0.0005
+
+  number_of_layers: 36
+  layer_height_m: 0.000515
+
+  # Nominal analysis time for each layer.
+  layer_duration_s: 1.0
+
+  scan:
+    length_m: 0.500
+    width_m: 0.030
+    y_m: 0.0
+
+material:
+  elastic_modulus_pa: 2.05e11
+  poisson_ratio: 0.29
+  initial_yield_stress_pa: 1.00e9
+  hardening_modulus_pa: 0.00e7
+  maximum_yield_stress_pa: 1.00e9
+
+# material:
+#   elastic_modulus_pa: 1.04e11
+#   poisson_ratio: 0.29
+#   initial_yield_stress_pa: 7.68e8
+#   hardening_modulus_pa: 0.00e7
+#   maximum_yield_stress_pa: 7.68e8
+
+#material:
+#  elastic_modulus_pa: 2.05e11
+#  poisson_ratio: 0.29
+#  initial_yield_stress_pa: 10.0e8
+#  hardening_modulus_pa: 1.00e8
+#  maximum_yield_stress_pa: 10.10e8
+
+inherent_strain:
+  # Total inherent strain per layer.
+  default:
+    xx: -0.015
+    yy: -0.015
+    zz: 0.020
+
+# inherent_strain:
+#   # Total inherent strain per layer.
+#   default:
+#     xx: -0.012
+#     yy: -0.012
+#     zz: 0.010
+
+#inherent_strain:
+#  # Total inherent strain per layer.
+#  default:
+#    xx: -0.006
+#    yy: -0.006
+#    zz: 0.004
+
+  # Number of loading increments for each layer's total inherent strain.
+  increments_per_layer: 2
+
+  # Whether to output every subincrement.
+  # false outputs only the final result of each layer.
+  save_each_increment: false
+
+cutting:
+  enabled: true
+  mode: node_release
+  # Set to false to disable cutting.
+  # enabled: false
+  #
+  # Single cut: use the fields below directly.
+  #
+  # Two or more cuts: uncomment jobs.
+  # mode: cell_silence
+
+  jobs:
+    - tag: cut_left
+      x_range_m:
+        - -0.150
+        - -0.003
+      # z_range_m:
+      #   - 0.0322
+      #   - 0.0317
+    - tag: cut_right
+      x_range_m:
+        - 0.003
+        - 0.150
+      # z_range_m:
+      #   - 0.0322
+      #   - 0.0317
+
+  z_cut_m: 0.0322
+  interface_tolerance_m: 1.0e-6
+  gap_m: 0.0
+  tag: cut_block
+
+postprocess:
+  enabled: true
+  output_directory: ../../../../opt_output/IS_solver/dc/postprocess
+  save_plot: true
+  jobs:
+  - name: pre_cut_strain_line_1
+    source: forward
+    variables:
+    - name: eps_e_xx
+      location: cell
+    - name: eps_e_zz
+      location: cell
+    line:
+      start_m:
+      - -0.0635
+      - 0.0
+      - 0.03825
+      end_m:
+      - 0.0635
+      - 0.0
+      - 0.03825
+      num_points: 150
+  - name: post_cut_displacement_line
+    source: cutting
+    variables:
+    - name: u
+      location: point
+      components:
+      - z
+      label: displacement
+    line:
+      start_m:
+      - -0.0635
+      - 0.0
+      - 0.03849
+      end_m:
+      - 0.0635
+      - 0.0
+      - 0.03849
+      num_points: 80
+output:
+  clear_vtk_directory: true
+
+  # Convert output displacement from m to mm.
+  displacement_scale: 1000.0

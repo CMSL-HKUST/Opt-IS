@@ -1,0 +1,77 @@
+case:
+  name: bridge_inherent_strain
+runtime:
+  cuda_visible_devices: '0'
+  enable_x64: true
+  xla_preallocate: false
+paths:
+  relative_to: config
+  mesh: mesh/arc36.inp
+  output_directory: ../../../../opt_output/bridge/forward
+  vtk_directory: ../../../../opt_output/bridge/forward/vtk
+mesh:
+  element_type: HEX8
+  scale_to_meter: 0.001
+geometry:
+  base_plate_height_m: 0.01
+  fixed_plane_z_m: 0.00
+  fixed_plane_tolerance_m: 0.0001
+activation:
+  z_tolerance_m: 1.0e-05
+toolpath:
+  mode: generated
+  number_of_layers: 36
+  # Coarse activation pitch for the macro bridge mesh; the process layer
+  # thickness is 30 um in am.yaml and optimization.yaml.
+  layer_height_m: 0.00025
+  layer_duration_s: 1.0
+  scan:
+    length_m: 0.5
+    width_m: 0.03
+    y_m: 0.0
+material:
+  elastic_modulus_pa: 1.1458e11
+  poisson_ratio: 0.3
+  initial_yield_stress_pa: 1.151e9
+  hardening_modulus_pa: 1.8139e9
+  # The figure gives no ultimate strength; use its largest tabulated yield stress as the cap.
+  maximum_yield_stress_pa: 1.31e9
+inherent_strain:
+  default:
+    xx: -0.005
+    yy: -0.005
+    zz: 0.005
+  increments_per_layer: 2
+  save_each_increment: false
+cutting:
+  enabled: false
+  mode: node_release
+  z_cut_m: 0.00
+  interface_tolerance_m: 1.0e-06
+  gap_m: 0.0
+  tag: cut_block
+postprocess:
+  enabled: true
+  output_directory: ../../../../opt_output/bridge/forward/postprocess
+  save_plot: true
+  jobs:
+  - name: pre_cut_strain_line_1
+    source: forward
+    variables:
+    - name: eps_e_xx
+      location: cell
+    - name: eps_e_zz
+      location: cell
+    line:
+      start_m:
+      - -0.0205
+      - 0.0
+      - 0.018875
+      end_m:
+      - 0.0205
+      - 0.0
+      - 0.018875
+      num_points: 150
+output:
+  clear_vtk_directory: true
+  displacement_scale: 1000.0

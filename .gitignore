@@ -19,3 +19,6 @@ env/
 
 # Generated simulation outputs
 /opt_output/
+
+# Local reference renders and prompts used while editing README artwork
+/docs/media/cover-sources/

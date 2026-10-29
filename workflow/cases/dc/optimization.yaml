@@ -1,0 +1,106 @@
+case:
+  name: epsilon_inversion_v3
+runtime:
+  cuda_visible_devices: '0'
+  enable_x64: true
+  xla_preallocate: false
+paths:
+  relative_to: config
+  mesh: mesh/Job-11040.inp
+  reference_vtu: ../../../../opt_output/dc/am/vtk/latest_step.vtu
+  output_directory: ../../../../opt_output/dc/optimization
+  vtk_directory: ../../../../opt_output/dc/optimization/vtk
+mesh:
+  element_type: HEX8
+  scale_to_meter: 0.001
+geometry:
+  base_plate_height_m: 0.0
+  fixed_plane_z_m: -0.001
+  fixed_plane_tolerance_m: 0.0001
+activation:
+  z_tolerance_m: 1.0e-05
+toolpath:
+  mode: generated
+  number_of_layers: 3
+  layer_height_m: 4.0e-05
+  layer_duration_s: 1.0
+  scan:
+    length_m: 0.0055
+    width_m: 0.0055
+    y_m: 0.0
+material:
+  # Dunbar et al. (2016), PDF p.6 (journal p.113), Tables 5/6.
+  # Static IS model uses the tabulated near-room-temperature point at 21 degC.
+  # AM uses the full temperature-dependent tables in am.yaml.
+  # No quantitative hardening law is reported; H=0 is a modeling assumption.
+  elastic_modulus_pa: 2.08e11
+  poisson_ratio: 0.3
+  initial_yield_stress_pa: 1.172e9
+  hardening_modulus_pa: 0.0
+  maximum_yield_stress_pa: 1.172e9
+optimization:
+  enabled: true
+  mode: legacy
+  # Two variables: eps_xx_yy is applied to both x/y directions; eps_zz is independent.
+  tie_xy: true
+  initial_params:
+  - -0.02
+  - 0.005
+  param_scale:
+  - 0.001
+  - 0.001
+  bounds:
+  - - -0.02
+    - -1.0e-08
+  - - -0.005
+    - 0.02
+  base_inherent_strain:
+    height_m: 0.0
+    x_ratio: 1.0
+    y_ratio: 1.0
+  roi:
+    stress:
+      x_range_m:
+      - -0.0005
+      - 0.0005
+      y_range_m:
+      - -0.0005
+      - 0.0005
+      z_range_m:
+      - 0.0
+      - 1.21e-04
+    displacement:
+      x_range_m:
+      - -0.0005
+      - 0.0005
+      y_range_m:
+      - -0.0005
+      - 0.0005
+      z_target_m: 1.2e-04
+      z_tolerance_m: 2.0e-05
+  # Four-term loss: stress + diagonal-vm + top uz + top xy relative contraction.
+  stress_normalization:
+    mode: material_yield
+  relative_contraction:
+    enabled: true
+    reduction: xy_mean
+    penalty: under_only
+    target_factor: 1.4
+    scale_floor: 1.0e-05
+    pair_tolerance_m: 1.0e-09
+  loss_weights:
+    stress: 2.0
+    vm: 1.0
+    uz: 1.0
+    contraction: 1.0
+  optimizer:
+    method: L-BFGS-B
+    maxiter: 50
+    ftol: 1.0e-12
+    gtol: 1.0e-08
+    maxls: 20
+  reference_displacement_scale_to_m: 0.001
+output:
+  clear_vtk_directory: true
+  displacement_scale: 1.0
+  epsilon_result_json: ../../../../opt_output/dc/optimization/epsilon_result.json

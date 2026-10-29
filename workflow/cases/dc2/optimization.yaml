@@ -1,0 +1,106 @@
+case:
+  name: epsilon_inversion_v3
+runtime:
+  cuda_visible_devices: '0'
+  enable_x64: true
+  xla_preallocate: false
+paths:
+  relative_to: config
+  mesh: mesh/Job-14030.inp
+  reference_vtu: ../../../../opt_output/dc2/am/vtk/latest_step.vtu
+  output_directory: ../../../../opt_output/dc2/optimization
+  vtk_directory: ../../../../opt_output/dc2/optimization/vtk
+mesh:
+  element_type: HEX8
+  scale_to_meter: 0.001
+geometry:
+  base_plate_height_m: 0.0
+  fixed_plane_z_m: -0.001
+  fixed_plane_tolerance_m: 0.0001
+activation:
+  z_tolerance_m: 1.0e-05
+toolpath:
+  mode: generated
+  number_of_layers: 3
+  layer_height_m: 3.0e-05
+  layer_duration_s: 1.0
+  scan:
+    length_m: 0.0005
+    width_m: 0.0005
+    y_m: 0.0
+material:
+  # Ti64.pptx, slide 1: use its 20 degC state for isothermal IS models.
+  # E=107 GPa, nu=0.323, sigma_y0=1098 MPa, bilinear isotropic Et=1.332 GPa.
+  # The solver requires H=d(sigma_y)/d(p), so H=E*Et/(E-Et), NOT Et itself.
+  elastic_modulus_pa: 1.07e+11
+  poisson_ratio: 0.323
+  initial_yield_stress_pa: 1.098e+9
+  hardening_modulus_pa: 1348790551.5387816
+  # Slides specify no saturation cap; do not disable hardening by capping at sigma_y0.
+  maximum_yield_stress_pa: .inf
+optimization:
+  enabled: true
+  mode: legacy
+  # Two variables: eps_xx_yy is applied to both x/y directions; eps_zz is independent.
+  tie_xy: true
+  initial_params:
+  - -0.02
+  - 0.005
+  param_scale:
+  - 0.001
+  - 0.001
+  bounds:
+  - - -0.02
+    - -1.0e-08
+  - - -0.005
+    - 0.03
+  base_inherent_strain:
+    height_m: 0.0
+    x_ratio: 1.0
+    y_ratio: 1.0
+  roi:
+    stress:
+      x_range_m:
+      - -0.0005
+      - 0.0005
+      y_range_m:
+      - -0.0005
+      - 0.0005
+      z_range_m:
+      - 0.0
+      - 9.1e-05
+    displacement:
+      x_range_m:
+      - -0.0005
+      - 0.0005
+      y_range_m:
+      - -0.0005
+      - 0.0005
+      z_target_m: 9.0e-05
+      z_tolerance_m: 2.0e-05
+  # Four-term loss: stress + diagonal-vm + top uz + top xy relative contraction.
+  stress_normalization:
+    mode: material_yield
+  relative_contraction:
+    enabled: true
+    reduction: xy_mean
+    penalty: under_only
+    target_factor: 1.4
+    scale_floor: 1.0e-05
+    pair_tolerance_m: 1.0e-09
+  loss_weights:
+    stress: 2.0
+    vm: 1.0
+    uz: 1.0
+    contraction: 1.0
+  optimizer:
+    method: L-BFGS-B
+    maxiter: 50
+    ftol: 1.0e-12
+    gtol: 1.0e-08
+    maxls: 20
+  reference_displacement_scale_to_m: 0.001
+output:
+  clear_vtk_directory: true
+  displacement_scale: 1.0
+  epsilon_result_json: ../../../../opt_output/dc2/optimization/epsilon_result.json

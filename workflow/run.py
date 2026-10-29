@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run AM -> inherent-strain optimization -> macro forward simulation."""
+"""Launch the AM -> inherent-strain optimization -> macro forward workflow."""
 
 import argparse
 import copy

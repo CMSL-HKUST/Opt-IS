@@ -1,0 +1,386 @@
+case:
+  name: dc2_ti6al4v
+runtime:
+  cuda_visible_devices: '0'
+  xla_preallocate: false
+paths:
+  relative_to: config
+  mesh: mesh/Job-14030.inp
+  output_directory: ../../../../opt_output/dc2/am
+  vtk_directory: ../../../../opt_output/dc2/am/vtk
+  mesh_output: ../../../../opt_output/dc2/am/mesh/Job-10030_mesh.vtu
+mesh:
+  element_type: HEX8
+  scale_to_meter: 0.001
+geometry:
+  substrate_bottom_z_m: -0.001
+  bottom_tolerance_m: 0.0001
+  material_interface_z_m: 0.0
+  base_plate_height_m: 0.0
+thermal:
+  initial_temperature_c: 27.0
+  convection:
+    coefficient_w_m2k: 55.0
+    ambient_temperature_c: 27.0
+  radiation:
+    stefan_boltzmann: 5.67e-08
+    emissivity: 0.54
+    ambient_temperature_c: 27.0
+mechanics:
+  fixed_plane_z_m: -0.001
+  fixed_plane_tolerance_m: 0.0001
+  thermal_strain_reference_temperature_c: 300.0
+  # Cap mechanical thermal strain at 2000 degC.
+  # This is NOT the Ti64 solidus; phase/latent-heat temperatures stay unchanged.
+  thermal_strain_cutoff: 2000.0
+phase:
+  powder: 0
+  liquid: 1
+  solid: 2
+heat_source:
+  type: goldak_double_ellipsoid
+  power_w: 280.0
+  efficiency: 0.5
+  front_radius_x_m: 5.0e-05
+  rear_radius_x_m: 5.0e-05
+  radius_y_m: 5.0e-05
+  radius_z_m: 9.0e-05
+  front_fraction: 1.0
+  rear_fraction: 1.0
+  surface_source:
+    enabled: false
+    radius_x_m: 5.0e-05
+    radius_y_m: 5.0e-05
+activation:
+  active_radius_factor: 2.0
+toolpath:
+  mode: generated
+  pattern: box_zigzag
+  number_of_layers: 3
+  layer_height_m: 3.0e-05
+  cooling_time_s: 10.0
+  scan:
+    # Scan the centered 0.5 mm build region, not the surrounding substrate.
+    length_x_m: 7.0e-04
+    length_y_m: 7.0e-04
+    velocity_m_s: 1.2
+    hatch_spacing_m: 1.4e-04
+    center_x_m: 0.0
+    center_y_m: 0.0
+    first_layer_angle_degrees: 0.0
+    layer_rotation_degrees: 67.0
+    zigzag: true
+time_stepping:
+  laser_on_dt_s: 1.25e-05
+  laser_off_steps_per_segment: 50
+  mechanics_interval: 2
+output:
+  clear_vtk_directory: true
+materials:
+  upper_region: &id001
+    # Source: Ti64.pptx, slide 1, the six embedded material-property tables.
+    # Temperatures shown in degC are converted to K by adding 273.15.
+    # Linear interpolation and endpoint clamping follow the existing solver.
+    name: Ti-6Al-4V
+    # Constant density by user choice: use the slides' 20 degC value.
+    # Slides rho(T) [degC: kg/m3]: 20:4405, 1227:4243, 1777:4189,
+    # 1877:3865, 2127:3730, 2500:3730. The high-T density table is NOT active.
+    density_kg_m3: 4405.0
+    # Slides do not specify latent heat/solidus/liquidus: retain previous values.
+    latent_heat_j_kg: 270000.0
+    solidus_temperature_k: 1878.0
+    liquidus_temperature_k: 1928.0
+    conductivity:
+      temperature_k:
+      - 293.15
+      - 373.15
+      - 473.15
+      - 573.15
+      - 673.15
+      - 773.15
+      - 873.15
+      - 973.15
+      - 1073.15
+      - 1173.15
+      - 1273.15
+      - 1373.15
+      - 1473.15
+      - 1573.15
+      - 1673.15
+      - 1773.15
+      - 1873.15
+      - 1923.15
+      - 1973.15
+      - 2073.15
+      - 2173.15
+      - 2223.15
+      values:
+      - 8.11
+      - 7.74
+      - 7.52
+      - 7.55
+      - 7.81
+      - 8.29
+      - 8.96
+      - 9.81
+      - 10.82
+      - 11.98
+      - 13.26
+      - 14.65
+      - 16.13
+      - 17.69
+      - 19.29
+      - 20.93
+      - 22.6
+      - 28.53
+      - 29.45
+      - 31.28
+      - 33.11
+      - 34.02
+    heat_capacity:
+      temperature_k:
+      - 20.0
+      - 100.0
+      - 200.0
+      - 300.0
+      - 400.0
+      - 500.0
+      - 600.0
+      - 700.0
+      - 800.0
+      - 900.0
+      - 1000.0
+      - 1100.0
+      - 1200.0
+      - 1300.05
+      - 1400.05
+      - 1500.05
+      - 1600.05
+      - 1650.05
+      - 1700.05
+      - 1800.05
+      - 1900.05
+      - 1950.05
+      values:
+      - 542.67
+      - 552.07
+      - 565.86
+      - 581.58
+      - 598.82
+      - 617.21
+      - 636.34
+      - 655.84
+      - 675.3
+      - 694.35
+      - 712.58
+      - 729.62
+      - 745.06
+      - 758.53
+      - 769.62
+      - 777.96
+      - 783.14
+      - 830.0
+      - 830.0
+      - 830.0
+      - 830.0
+      - 830.0
+    elastic_modulus:
+      temperature_k:
+      - 293.15
+      - 373.15
+      - 473.15
+      - 573.15
+      - 673.15
+      - 773.15
+      - 873.15
+      - 973.15
+      - 1073.15
+      - 1173.15
+      - 1273.15
+      - 1373.15
+      - 1473.15
+      - 1573.15
+      - 1673.15
+      - 1773.15
+      - 1873.15
+      values_gpa:
+      - 107.0
+      - 103.4
+      - 99.51
+      - 93.71
+      - 85.5
+      - 74.71
+      - 61.84
+      - 48.16
+      - 35.29
+      - 24.5
+      - 16.29
+      - 10.49
+      - 6.61
+      - 4.106
+      - 2.528
+      - 1.547
+      - 0.9435
+    # Source: Ti64.pptx slide 1, isotropic SECANT thermal-expansion coefficients.
+    # Conversion reference T0=20 degC: eps_th(T)=alpha_s(T)*(T-T0).
+    # This table stores TANGENT alpha_t=d(eps_th)/dT=alpha_s+(T-T0)*d(alpha_s)/dT.
+    # Original secant [degC: micro/K]: -233.15:6.5, -173.15:7.1, 19.85:8.9,
+    # 126.85:9.7, 326.85:10.8, 526.85:11.4, 626.86:11.6, 826.86:11.6.
+    # Original alpha_s is piecewise-linear, endpoint-clamped as in MaterialDatabase.
+    # Its derivative jumps at knots. Encode left/right limits at +/-0.001 degC
+    # to avoid smearing a jump across an entire original temperature interval.
+    # Keep alpha_t endpoint-constant outside the original range. Units: micro/K.
+    # T0 here is the COEFFICIENT conversion reference, not a change to birth states
+    # or mechanics.thermal_strain_reference_temperature_c (output reference).
+    thermal_expansion:
+      temperature_k:
+      - 39.999
+      - 40.001
+      - 99.999
+      - 100.001
+      - 292.999
+      - 293.001
+      - 293.15
+      - 399.999
+      - 400.001
+      - 599.999
+      - 600.001
+      - 799.999
+      - 800.001
+      - 900.009
+      - 900.011
+      - 1100.009
+      - 1100.011
+      values_micro_per_k:
+      - 6.5
+      - 3.968
+      - 5.168
+      - 5.298
+      - 8.898
+      - 8.898
+      - 8.901
+      - 10.498
+      - 10.287
+      - 12.487
+      - 11.720
+      - 12.920
+      - 12.413
+      - 12.813
+      - 11.6
+      - 11.6
+      - 11.6
+    poisson_ratio:
+      temperature_k:
+      - 293.15
+      - 373.15
+      - 473.15
+      - 573.15
+      - 673.15
+      - 773.15
+      - 873.15
+      - 973.15
+      - 1073.15
+      - 1173.15
+      - 1273.15
+      - 1373.15
+      - 1473.15
+      - 1573.15
+      - 1673.15
+      - 1773.15
+      - 1873.15
+      values:
+      - 0.323
+      - 0.328
+      - 0.334
+      - 0.339
+      - 0.345
+      - 0.351
+      - 0.357
+      - 0.363
+      - 0.369
+      - 0.374
+      - 0.38
+      - 0.386
+      - 0.392
+      - 0.398
+      - 0.403
+      - 0.409
+      - 0.415
+    yield_stress:
+      temperature_k:
+      - 293.15
+      - 477.15
+      - 700.15
+      - 811.15
+      - 1088.15
+      - 1217.15
+      values_mpa:
+      - 1098.0
+      - 844.0
+      - 663.0
+      - 527.0
+      - 60.0
+      - 21.0
+    # Bilinear ISOTROPIC hardening has no tabulated saturation/ultimate cap.
+    # +inf disables the old cap; factor=1 would silently cancel all hardening.
+    maximum_yield_factor: .inf
+    # Slides give tangent modulus Et, not plastic hardening modulus H.
+    # H(T)=E(T)*Et(T)/(E(T)-Et(T)); interpolate E/Et at their union of knots.
+    # Et [degC: GPa]: 20:1.332, 204:1.207, 427:1.033,
+    # 538:0.943, 815:0.708, 944:0.596 (held beyond its table).
+    hardening_modulus:
+      temperature_k:
+      - 293.15
+      - 373.15
+      - 473.15
+      - 477.15
+      - 573.15
+      - 673.15
+      - 700.15
+      - 773.15
+      - 811.15
+      - 873.15
+      - 973.15
+      - 1073.15
+      - 1088.15
+      - 1173.15
+      - 1217.15
+      - 1273.15
+      - 1373.15
+      - 1473.15
+      - 1573.15
+      - 1673.15
+      - 1773.15
+      - 1873.15
+      values_gpa:
+      - 1.3487905515387817
+      - 1.2936368737584159
+      - 1.2246045933345764
+      - 1.2218550437948017
+      - 1.1459380481536505
+      - 1.0672242960881968
+      - 1.0460844952466901
+      - 0.9866716259096068
+      - 0.9559107938277842
+      - 0.9034084112463401
+      - 0.8192668987745001
+      - 0.7357518492925156
+      - 0.7232066376446675
+      - 0.651054605078527
+      - 0.6135055688067969
+      - 0.6186338728176373
+      - 0.6319021629270265
+      - 0.6550648486863984
+      - 0.6972011396011396
+      - 0.7798592132505177
+      - 0.9695184016824395
+      - 1.6182043165467623
+    # Isotropic hardening only; no kinematic hardening in the slides.
+    kinematic_hardening_modulus:
+      temperature_k:
+      - 293.15
+      - 1873.15
+      values_gpa:
+      - 0.0
+      - 0.0
+  lower_region: *id001

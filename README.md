@@ -1,14 +1,14 @@
-# OPT-IS
+# Opt-IS
 
 <p align="center">
-  <img src="docs/media/social-preview.png" alt="OPT-IS — local AM small model linked by an inherent strain transfer arrow to a macroscale cantilever model" width="100%">
+  <img src="docs/media/social-preview.png" alt="Opt-IS — local AM small model linked by an inherent strain transfer arrow to a macroscale cantilever model" width="100%">
 </p>
 
 <p align="center">
   <strong>Additive manufacturing · Inherent strain optimization · Residual stress &amp; distortion</strong>
 </p>
 
-**OPT-IS** is a finite element workflow for calibrating inherent strain from local additive manufacturing (AM) simulations and applying it to macroscale residual stress and distortion prediction. It connects thermomechanical process simulation, gradient-based parameter optimization, and structural analysis in one configurable pipeline.
+**Opt-IS** is a finite element workflow for calibrating inherent strain from local additive manufacturing (AM) simulations and applying it to macroscale residual stress and distortion prediction. It connects thermomechanical process simulation, gradient-based parameter optimization, and structural analysis in one configurable pipeline.
 
 A small-scale AM simulation provides the reference stress and displacement fields. The optimizer fits the inherent strain components on the same mesh, then transfers the calibrated vector to a larger model for forward analysis, cutting, and profile extraction. JAX and JAX-FEM provide automatic differentiation and finite element infrastructure; PETSc provides the configured linear solvers.
 
@@ -18,7 +18,7 @@ A small-scale AM simulation provides the reference stress and displacement field
 - **Element activation and deactivation:** the inherent strain solver activates elements layer by layer to represent material addition during the build. For material removal, it supports element deactivation through progressive release of the selected elements' stress contribution, allowing the remaining structure to re-equilibrate. Both operations use element masks while retaining the original mesh.
 - **Case-based execution:** manage meshes and stage settings through YAML files, share one solver policy, and resume from an existing stage result.
 
-The repository includes a **cantilever** case with input meshes and stage configurations. The gallery below also shows archived simulations of other geometries.
+The repository includes **cantilever**, **dc** (double cantilever), **bridge**, and **dc2** workflow cases, together with standalone AM and inherent strain examples. Each case includes its YAML settings and input meshes. The gallery below shows archived simulation recordings.
 
 ## Simulation gallery
 
@@ -58,14 +58,16 @@ Archived simulations of single-track scanning, a thin-wall build, a cantilever, 
 
 ## Workflow
 
-![OPT-IS workflow: thermomechanical AM, inherent strain optimization, and macroscale forward simulation, using a shared solver configuration.](docs/media/workflow.png)
+![Opt-IS workflow: thermomechanical AM, inherent strain optimization, and macroscale forward simulation, using a shared solver configuration.](docs/media/workflow.png)
 
 | Stage | Entry point | Role |
 | :--- | :--- | :--- |
 | AM | `am_solver/run.py` | Run thermomechanical scanning on the small mesh. |
 | Optimization | `IS_solver/opt_run.py` | Fit `xx / yy / zz` inherent strain components to the AM reference, with optional `xx = yy` parameter tying. |
 | Forward | `IS_solver/run.py` | Apply the calibrated vector to the large mesh; optionally release nodes for cutting and extract profiles. |
-| Orchestration | `opt_solver/run.py` | Connect the stages, resolve inputs, generate effective configurations, and index the resulting artifacts. |
+| Workflow launcher | `workflow/run.py` | Connect the stages, resolve inputs, generate effective configurations, and index the resulting artifacts. |
+
+`workflow/` is the workflow launcher and case library. The numerical solvers live in `am_solver/` and `IS_solver/`.
 
 The optimizer and AM reference must use identical node and element counts and ordering. By default, the orchestrator selects the highest-numbered `step_*.vtu` from the AM output as the reference. It writes the calibrated vector into the forward configuration's `inherent_strain.default`.
 
@@ -82,20 +84,23 @@ conda activate jax-fem-env
 Check the case inputs and generate effective stage configurations without starting a solver:
 
 ```bash
-python opt_solver/run.py cantilever --dry-run
+python workflow/run.py cantilever --dry-run
+python workflow/run.py dc --dry-run
+python workflow/run.py bridge --dry-run
+python workflow/run.py dc2 --dry-run
 ```
 
 Run the enabled workflow stages:
 
 ```bash
-python opt_solver/run.py cantilever
+python workflow/run.py cantilever
 ```
 
 Resume from a stage when its upstream results already exist:
 
 ```bash
-python opt_solver/run.py cantilever --from-stage optimization
-python opt_solver/run.py cantilever --from-stage forward
+python workflow/run.py cantilever --from-stage optimization
+python workflow/run.py cantilever --from-stage forward
 ```
 
 The dry run checks input paths and generates stage configurations and a workflow manifest without running the simulation. Its forward configuration uses the initial strain parameters; a full run replaces them with the calibrated values. The dry run itself only requires Python and PyYAML.
@@ -104,22 +109,51 @@ The dry run checks input paths and generates stage configurations and a workflow
 
 ### Case inputs
 
-The checked-in case lives in [`opt_solver/cases/cantilever/`](opt_solver/cases/cantilever/).
+The workflow cases live in [`workflow/cases/`](workflow/cases/). Their supplied stage selections are preserved:
+
+| Case | Material / setup | Enabled stages | Main macro mesh |
+| :--- | :--- | :--- | :--- |
+| [`cantilever`](workflow/cases/cantilever/) | IN625 cantilever | AM → optimization → forward / cutting | `am25.inp` |
+| [`dc`](workflow/cases/dc/) | Double cantilever | AM → optimization | `dc36.inp` |
+| [`bridge`](workflow/cases/bridge/) | Ti-6Al-4V bridge | AM → optimization → forward | `arc36.inp` |
+| [`dc2`](workflow/cases/dc2/) | Ti-6Al-4V double-cantilever variant | AM → optimization | `dc36.inp` |
+
+The `dc` and `dc2` cases include forward configurations and macro meshes; set `run_macro_model: true` in their `config.yaml` to include that stage. Alternative macro meshes are retained in each case's `mesh/` directory. The cantilever also includes `config_power80.yaml`, a historical variant whose current power override is **156 W**.
+
+Each workflow case has the same structure; the cantilever files provide an example:
 
 | File | Purpose |
 | :--- | :--- |
-| [`config.yaml`](opt_solver/cases/cantilever/config.yaml) | Enabled stages, solver locations, mesh paths, output path, and reference unit conversion. |
-| [`am.yaml`](opt_solver/cases/cantilever/am.yaml) | Thermal and mechanical AM settings, including temperature-dependent material parameters. |
-| [`optimization.yaml`](opt_solver/cases/cantilever/optimization.yaml) | Inherent strain parameterization, objective, and optimization settings. |
-| [`forward.yaml`](opt_solver/cases/cantilever/forward.yaml) | Macroscale activation, material, cutting, and profile extraction settings. |
+| [`config.yaml`](workflow/cases/cantilever/config.yaml) | Enabled stages, solver locations, mesh paths, output path, and reference unit conversion. |
+| [`am.yaml`](workflow/cases/cantilever/am.yaml) | Thermal and mechanical AM settings, including temperature-dependent material parameters. |
+| [`optimization.yaml`](workflow/cases/cantilever/optimization.yaml) | Inherent strain parameterization, objective, and optimization settings. |
+| [`forward.yaml`](workflow/cases/cantilever/forward.yaml) | Macroscale activation, material, cutting, and profile extraction settings. |
 | `mesh/Job-10020.inp` | Small mesh shared by AM and optimization. |
 | `mesh/am25.inp` | Large mesh used by the forward stage. |
 
 Copy the whole case directory to create a new case, then edit the copied inputs. The orchestrator requires case-specific stage YAML files, required input meshes, file-based toolpaths, and any explicit reference VTU to stay inside that case directory.
 
+### Standalone examples
+
+| Entry point | Included cases | Purpose |
+| :--- | :--- | :--- |
+| `am_solver/run.py` | [`track1`](am_solver/cases/track1/), [`thin_wall`](am_solver/cases/thin_wall/), [`dc_scan`](am_solver/cases/dc_scan/), [`point_heat`](am_solver/cases/point_heat/) | Single-track, thin-wall, hatch scanning, and thermal-only point-source examples. |
+| `IS_solver/run.py` | [`can`](IS_solver/cases/can/), [`dc`](IS_solver/cases/dc/), [`bg`](IS_solver/cases/bg/) | Standalone cantilever, double-cantilever, and bridge analyses with prescribed inherent strain. |
+
+For example:
+
+```bash
+python am_solver/run.py track1
+python am_solver/run.py am_solver/cases/thin_wall/thin_wall20.yaml
+python am_solver/run.py point_heat
+python IS_solver/run.py can
+```
+
+The thermal-only `point_heat` example uses its case-local thermal solver settings. The other AM and IS examples load the shared solver policy. Standalone IS cases prescribe their own strain values; the workflow cases perform calibration before macro analysis.
+
 ### Shared solver policy
 
-All cases use the repository's [`solver_config.yaml`](solver_config.yaml). The orchestrator injects this policy after case overrides, so stage-specific solver settings cannot silently replace it. The standalone AM and IS entry points also load the shared policy.
+Workflow cases use the repository's [`solver_config.yaml`](solver_config.yaml). The orchestrator injects this policy after case overrides, so stage-specific solver settings cannot silently replace it. The standalone AM and IS entry points also load the shared policy, except for the thermal-only benchmark described above.
 
 | System | Current backend and method |
 | :--- | :--- |
@@ -139,7 +173,7 @@ Set the following in the case's `config.yaml` to run AM and optimization only:
 run_macro_model: false
 ```
 
-The default is `true` when omitted. With the macro model disabled, the workflow neither validates the large mesh nor generates the forward configuration, and `--from-stage forward` is unavailable. The checked-in cantilever case currently enables the macro model.
+The default is `true` when omitted. With the macro model disabled, the workflow neither validates the large mesh nor generates the forward configuration, and `--from-stage forward` is unavailable. The supplied cantilever and bridge configurations enable the macro model; dc and dc2 disable it.
 
 ### Reference units
 
@@ -161,14 +195,18 @@ Review `optimization/epsilon_result.json` for the fitted vector and convergence 
 ## Repository layout
 
 ```text
-OPT-IS/
+Opt-IS/
 ├── README.md                   # Project overview and workflow instructions
 ├── solver_config.yaml          # Shared solver policy
-├── am_solver/                  # Thermomechanical AM solver
-├── IS_solver/                  # Inherent strain optimization and forward solver
-├── opt_solver/
-│   ├── run.py                  # Workflow entry point
-│   └── cases/cantilever/       # Case YAML files and input meshes
+├── am_solver/                  # Thermomechanical AM solver and standalone cases
+├── IS_solver/                  # Inherent strain optimization, forward solver, and cases
+├── workflow/
+│   ├── run.py                  # Workflow launcher
+│   └── cases/                 # YAML settings and input meshes
+│       ├── cantilever/
+│       ├── dc/
+│       ├── bridge/
+│       └── dc2/
 └── docs/media/                 # README cover, workflow diagram, GIFs, and project icon
 ```
 
@@ -178,7 +216,7 @@ The case configuration writes to `../opt_output/cantilever/`, beside the reposit
 
 ```text
 Desktop/
-├── OPT-IS/
+├── Opt-IS/
 └── opt_output/cantilever/
     ├── generated_configs/              # Effective configurations for enabled stages
     ├── am/vtk/                         # AM step fields

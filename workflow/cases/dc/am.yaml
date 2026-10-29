@@ -1,0 +1,221 @@
+case:
+  name: dc_in718
+runtime:
+  cuda_visible_devices: '0'
+  xla_preallocate: false
+paths:
+  relative_to: config
+  mesh: mesh/Job-11040.inp
+  output_directory: ../../../../opt_output/dc/am
+  vtk_directory: ../../../../opt_output/dc/am/vtk
+  mesh_output: ../../../../opt_output/dc/am/mesh/Job-11040_mesh.vtu
+mesh:
+  element_type: HEX8
+  scale_to_meter: 0.001
+geometry:
+  substrate_bottom_z_m: -0.001
+  bottom_tolerance_m: 0.0001
+  material_interface_z_m: 0.0
+  base_plate_height_m: 0.0
+thermal:
+  initial_temperature_c: 25.0
+  convection:
+    coefficient_w_m2k: 8.0  # Dunbar et al. (2016), Table 6.
+    ambient_temperature_c: 25.0  # Dunbar et al. (2016), Table 6.
+  radiation:
+    stefan_boltzmann: 5.67e-08
+    # Table 4 reports temperature-dependent emissivity (0.28/0.42/0.58).
+    # This solver accepts a scalar here; retain the prior 0.2, not a paper value.
+    emissivity: 0.2
+    ambient_temperature_c: 25.0  # Dunbar et al. (2016), Table 6.
+mechanics:
+  fixed_plane_z_m: -0.001
+  fixed_plane_tolerance_m: 0.0001
+  # Output-decomposition reference: use the 25 degC ambient (modeling choice).
+  # The paper defines Tref in Eq. (9) but does not specify its numeric value.
+  thermal_strain_reference_temperature_c: 25.0
+  # Source: IN718 solidus_temperature_k below, 1533 K = 1259.85 degC.
+  # Only solid-state cooling below this temperature contributes thermal strain.
+  thermal_strain_cutoff: solidus
+phase:
+  powder: 0
+  liquid: 1
+  solid: 2
+heat_source:
+  type: goldak_double_ellipsoid
+  power_w: 285.0
+  efficiency: 0.4
+  front_radius_x_m: 5.0e-05
+  rear_radius_x_m: 5.0e-05
+  radius_y_m: 5.0e-05
+  radius_z_m: 1.25e-04
+  front_fraction: 1.0
+  rear_fraction: 1.0
+  surface_source:
+    enabled: false
+    radius_x_m: 5.0e-05
+    radius_y_m: 5.0e-05
+activation:
+  active_radius_factor: 2.0
+toolpath:
+  mode: generated
+  pattern: box_zigzag
+  number_of_layers: 3
+  layer_height_m: 4.0e-05
+  cooling_time_s: 200.0
+  scan:
+    # Scan the centered 1.1 mm build region, not the surrounding substrate.
+    length_x_m: 5.5e-04
+    length_y_m: 5.5e-04
+    velocity_m_s: 0.96
+    hatch_spacing_m: 1.1e-04
+    center_x_m: 0.0
+    center_y_m: 0.0
+    first_layer_angle_degrees: 0.0
+    layer_rotation_degrees: 67.0
+    zigzag: true
+time_stepping:
+  laser_on_dt_s: 1.25e-05
+  laser_off_steps_per_segment: 10
+  mechanics_interval: 2
+output:
+  clear_vtk_directory: true
+materials:
+  # Source: Dunbar et al., "Experimental validation of finite element modeling
+  # for laser powder bed fusion deformation", Additive Manufacturing 12 (2016).
+  # Source: article S2214860416302032, p.6 (journal p.113).
+  # Tables 4/5/6: thermal tables / mechanical tables / density and Poisson ratio.
+  # Paper temperatures are degC; YAML temperature_k entries are degC + 273.15.
+  # Dashes in Table 5 are omitted, not replaced with zeros. Existing solver
+  # linearly interpolates within tables and clamps outside their temperature range.
+  upper_region: &id001
+    name: IN718
+    density_kg_m3: 8146.0
+    # The paper's Tables 4-6 do not specify these phase-change parameters.
+    # Retain prior values; do not attribute them to this paper.
+    latent_heat_j_kg: 286000.0
+    solidus_temperature_k: 1533.0
+    liquidus_temperature_k: 1609.0
+    conductivity:
+      temperature_k:
+      - 293.15
+      - 373.15
+      - 573.15
+      - 773.15
+      - 973.15
+      - 1623.15
+      values:
+      - 11.4
+      - 12.5
+      - 14.0
+      - 15.5
+      - 21.5
+      - 31.3
+    heat_capacity:
+      temperature_k:
+      - 293.15
+      - 373.15
+      - 573.15
+      - 773.15
+      - 973.15
+      - 1623.15
+      values:
+      - 427
+      - 441
+      - 481
+      - 521
+      - 601
+      - 691
+    elastic_modulus:
+      temperature_k:
+      - 294.15
+      - 366.15
+      - 477.15
+      - 589.15
+      - 700.15
+      - 811.15
+      - 922.15
+      - 1033.15
+      - 1144.15
+      - 1227.15
+      values_gpa:
+      - 208
+      - 205
+      - 202
+      - 194
+      - 186
+      - 179
+      - 172
+      - 162
+      - 127
+      - 17.8
+    thermal_expansion:
+      temperature_k:
+      - 294.15
+      - 366.15
+      - 477.15
+      - 589.15
+      - 700.15
+      - 811.15
+      - 922.15
+      - 1033.15
+      - 1227.15
+      values_micro_per_k:
+      - 12.8
+      - 12.8
+      - 13.5
+      - 13.9
+      - 14.2
+      - 14.4
+      - 15.1
+      - 16.1
+      - 16.2
+    poisson_ratio:
+      temperature_k:
+      - 294.15
+      - 1623.15
+      values:
+      - 0.3
+      - 0.3
+    yield_stress:
+      temperature_k:
+      - 294.15
+      - 366.15
+      - 700.15
+      - 811.15
+      - 922.15
+      - 1033.15
+      - 1144.15
+      - 1227.15
+      values_mpa:
+      - 1172
+      - 1172
+      - 1089
+      - 1068
+      - 1034
+      - 827
+      - 286
+      - 138
+    # No quantitative hardening law is supplied in the paper. H=0 and factor=1
+    # are a stated no-extra-hardening closure, NOT paper-reported parameters.
+    maximum_yield_factor: 1.0
+    hardening_modulus:
+      temperature_k:
+      - 294.15
+      - 366.15
+      - 700.15
+      - 811.15
+      - 922.15
+      - 1033.15
+      - 1144.15
+      - 1227.15
+      values_gpa:
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+  lower_region: *id001

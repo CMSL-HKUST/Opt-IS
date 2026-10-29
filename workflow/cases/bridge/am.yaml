@@ -1,0 +1,193 @@
+case:
+  name: bridge_ti6al4v
+runtime:
+  cuda_visible_devices: '0'
+  xla_preallocate: false
+paths:
+  relative_to: config
+  mesh: mesh/Job-10530.inp
+  output_directory: ../../../../opt_output/bridge/am
+  vtk_directory: ../../../../opt_output/bridge/am/vtk
+  mesh_output: ../../../../opt_output/bridge/am/mesh/small_mesh.vtu
+mesh:
+  element_type: HEX8
+  scale_to_meter: 0.001
+geometry:
+  substrate_bottom_z_m: -0.001
+  bottom_tolerance_m: 0.0001
+  material_interface_z_m: 0.0
+  base_plate_height_m: 0.0
+thermal:
+  initial_temperature_c: 25.0
+  convection:
+    coefficient_w_m2k: 10.0
+    ambient_temperature_c: 25.0
+  radiation:
+    stefan_boltzmann: 5.67e-08
+    emissivity: 0.2
+    ambient_temperature_c: 25.0
+mechanics:
+  fixed_plane_z_m: -0.001
+  fixed_plane_tolerance_m: 0.0001
+  thermal_strain_reference_temperature_c: 25.0
+  # Source: Ti-6Al-4V solidus_temperature_k below, 1878 K = 1604.85 degC.
+  # Only solid-state cooling below this temperature contributes thermal strain.
+  thermal_strain_cutoff: solidus
+phase:
+  powder: 0
+  liquid: 1
+  solid: 2
+heat_source:
+  type: goldak_double_ellipsoid
+  power_w: 100.0
+  efficiency: 0.3
+  front_radius_x_m: 5.4e-05
+  rear_radius_x_m: 5.4e-05
+  radius_y_m: 5.4e-05
+  radius_z_m: 3.0e-05
+  front_fraction: 1.0
+  rear_fraction: 1.0
+  surface_source:
+    enabled: false
+    radius_x_m: 5.4e-05
+    radius_y_m: 5.4e-05
+activation:
+  active_radius_factor: 2.0
+toolpath:
+  mode: generated
+  pattern: box_zigzag
+  number_of_layers: 2
+  layer_height_m: 3.0e-05
+  cooling_time_s: 200.0
+  scan:
+    length_x_m: 0.000525
+    length_y_m: 0.000525
+    velocity_m_s: 0.6
+    hatch_spacing_m: 1.05e-04
+    center_x_m: 0.0
+    center_y_m: 0.0
+    first_layer_direction: x
+    rotate_layers: true
+    zigzag: true
+time_stepping:
+  laser_on_dt_s: 1.041e-05
+  laser_off_steps_per_segment: 50
+  mechanics_interval: 2
+output:
+  clear_vtk_directory: true
+materials:
+  upper_region: &id001
+    name: Ti-6Al-4V
+    density_kg_m3: 4417.8
+    latent_heat_j_kg: 270000.0
+    solidus_temperature_k: 1878.0
+    liquidus_temperature_k: 1928.0
+    conductivity:
+      temperature_k:
+      - 273
+      - 1254
+      - 1264
+      - 1913
+      - 1923
+      - 3550
+      values:
+      - 6.18
+      - 19.0
+      - 19.2
+      - 27.7
+      - 33.4
+      - 36.8
+    heat_capacity:
+      temperature_k:
+      - 273
+      - 1254
+      - 1264
+      - 1913
+      - 1923
+      - 3550
+      values:
+      - 517
+      - 881
+      - 707
+      - 756
+      - 829
+      - 829
+    elastic_modulus:
+      temperature_k:
+      - 293
+      - 961
+      - 973
+      - 1173
+      - 1264
+      - 1538
+      values_gpa:
+      - 115.0
+      - 60.7
+      - 59.8
+      - 24.0
+      - 16.7
+      - 11.0
+    thermal_expansion:
+      temperature_k:
+      - 273
+      - 1254
+      - 1264
+      - 1913
+      - 1923
+      - 3550
+      values_micro_per_k:
+      - 8.85
+      - 10.72
+      - 10.74
+      - 11.97
+      - 20.17
+      - 0.0
+    poisson_ratio:
+      temperature_k:
+      - 293
+      - 961
+      - 973
+      - 1173
+      - 1264
+      - 1538
+      values:
+      - 0.3
+      - 0.3
+      - 0.3
+      - 0.3
+      - 0.3
+      - 0.3
+    yield_stress:
+      temperature_k:
+      - 293
+      - 961
+      - 973
+      - 1173
+      - 1264
+      - 1538
+      values_mpa:
+      - 1151.0
+      - 365.8
+      - 257.6
+      - 69.0
+      - 69.0
+      - 69.0
+    # The figure does not specify an ultimate-yield cap; retain the model's
+    # existing 1.2 saturation factor while applying its tabulated yield curve.
+    maximum_yield_factor: 1.2
+    hardening_modulus:
+      temperature_k:
+      - 293
+      - 961
+      - 973
+      - 1173
+      - 1264
+      - 1538
+      values_gpa:
+      - 1.828
+      - 1.0
+      - 1.0
+      - 1.0
+      - 1.0
+      - 1.0
+  lower_region: *id001

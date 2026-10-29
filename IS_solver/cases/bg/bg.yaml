@@ -1,0 +1,131 @@
+case:
+  name: bridge_inherent_strain
+
+runtime:
+  cuda_visible_devices: "0"
+  enable_x64: true
+  xla_preallocate: false
+  # xla_memory_fraction: 0.7
+
+paths:
+  relative_to: config
+  mesh: mesh/arc18.inp
+  output_directory: ../../../../opt_output/IS_solver/bg
+  vtk_directory: ../../../../opt_output/IS_solver/bg/vtk_cut
+
+mesh:
+  element_type: HEX8
+
+  # Coordinates in the Abaqus input file are in mm;
+  # multiply by 0.001 after loading to convert to m.
+  scale_to_meter: 0.001
+
+geometry:
+  # Initially active region: z <= base_plate_height
+  base_plate_height_m: 0.01
+
+  # Actual fixed bottom plane.
+  fixed_plane_z_m: 0.0
+  fixed_plane_tolerance_m: 0.0001
+
+activation:
+  z_tolerance_m: 1.0e-5
+
+toolpath:
+  mode: generated
+
+  number_of_layers: 18
+  layer_height_m: 0.0005
+
+  # Nominal analysis time for each layer.
+  layer_duration_s: 1.0
+
+  scan:
+    length_m: 0.500
+    width_m: 0.030
+    y_m: 0.0
+
+material:
+  elastic_modulus_pa: 2.06e11
+  poisson_ratio: 0.29
+  initial_yield_stress_pa: 7.25e8
+  hardening_modulus_pa: 7.60e8
+  maximum_yield_stress_pa: 9.90e8
+
+inherent_strain:
+  # Total inherent strain per layer.
+  default:
+    xx: -0.00032
+    yy: -0.00032
+    zz: 0.00064
+
+  # Number of loading increments for each layer's total inherent strain.
+  increments_per_layer: 2
+
+  # Whether to output every subincrement.
+  # false outputs only the final result of each layer.
+  save_each_increment: false
+
+cutting:
+  enabled: true
+  mode: node_release
+  # mode: cell_silence
+  # In quiet-element mode, specify x_range_m / y_range_m / z_range_m,
+  # or specify only z_cut_m to use one layer thickness by default.
+
+  z_cut_m: 0.01
+
+  # Set to null to cut the entire interface.
+  x_range_m:
+    - 0.000
+    - 0.055
+
+  interface_tolerance_m: 1.0e-6
+  gap_m: 0.0
+  tag: cut_block
+
+postprocess:
+  enabled: true
+  output_directory: ../../../../opt_output/IS_solver/bg/postprocess
+  save_plot: true
+  jobs:
+  - name: pre_cut_strain_line
+    source: forward
+    variables:
+    - name: eps_e_xx
+      location: cell
+    - name: eps_e_zz
+      location: cell
+    line:
+      start_m:
+      - -0.0205
+      - 0.0
+      - 0.01875
+      end_m:
+      - 0.0205
+      - 0.0
+      - 0.01875
+      num_points: 150
+  - name: post_cut_displacement_line
+    source: cutting
+    variables:
+    - name: u
+      location: point
+      components:
+      - z
+      label: displacement
+    line:
+      start_m:
+      - -0.0205
+      - 0.0
+      - 0.019
+      end_m:
+      - 0.0205
+      - 0.0
+      - 0.019
+      num_points: 150
+output:
+  clear_vtk_directory: true
+
+  # Convert output displacement from m to mm.
+  displacement_scale: 1000.0

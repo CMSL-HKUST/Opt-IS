@@ -6,7 +6,7 @@ runtime:
   xla_preallocate: false
 paths:
   relative_to: config
-  mesh: mesh/small.inp
+  mesh: mesh/Job-10020.inp
   reference_vtu: ../../../../opt_output/cantilever/am/vtk/latest_step.vtu
   output_directory: ../../../../opt_output/cantilever/optimization
   vtk_directory: ../../../../opt_output/cantilever/optimization/vtk

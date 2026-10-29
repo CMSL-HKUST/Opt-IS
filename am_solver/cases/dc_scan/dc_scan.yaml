@@ -1,0 +1,299 @@
+case:
+  name: dc_scan
+
+runtime:
+  cuda_visible_devices: "0"
+  xla_preallocate: false
+  # xla_memory_fraction: 0.5
+
+paths:
+  relative_to: config
+  mesh: mesh/dc_scan.inp
+  output_directory: ../../../../opt_output/am_solver/dc_scan
+  vtk_directory: ../../../../opt_output/am_solver/dc_scan/vtk
+  mesh_output: ../../../../opt_output/am_solver/dc_scan/mesh/dc_scan.vtu
+
+mesh:
+  element_type: HEX8
+
+  # Original Abaqus mesh coordinates are in mm.
+  scale_to_meter: 0.001
+
+geometry:
+  substrate_bottom_z_m: -0.0025
+  bottom_tolerance_m: 0.0001
+
+  material_interface_z_m: 0.0
+  base_plate_height_m: 0.0
+
+thermal:
+  initial_temperature_c: 25.0
+
+  convection:
+    coefficient_w_m2k: 10.0
+    ambient_temperature_c: 25.0
+
+  radiation:
+    stefan_boltzmann: 5.67e-8
+    emissivity: 0.2
+    ambient_temperature_c: 25.0
+
+mechanics:
+  fixed_plane_z_m: -0.0025
+  fixed_plane_tolerance_m: 0.0001
+
+  thermal_strain_reference_temperature_c: 20.0
+
+phase:
+  powder: 0
+  liquid: 1
+  solid: 2
+
+heat_source:
+  type: goldak_double_ellipsoid
+
+  power_w: 280.0
+  efficiency: 0.4
+
+  front_radius_x_m: 0.00005
+  rear_radius_x_m: 0.00005
+  radius_y_m: 0.00005
+  radius_z_m: 0.00005
+
+  front_fraction: 1.0
+  rear_fraction: 1.0
+
+  surface_source:
+    enabled: false
+    radius_x_m: 0.00005
+    radius_y_m: 0.00005
+
+activation:
+  active_radius_factor: 2.0
+
+toolpath:
+  mode: generated
+  pattern: box_zigzag
+
+  # Layerwise scanning of a 1 mm x 1 mm region; change the layer count here as needed.
+  number_of_layers: 2
+  layer_height_m: 0.00003
+
+  # Cooling/waiting time after each layer.
+  cooling_time_s: 200.0
+
+  scan:
+    length_x_m: 0.001
+    length_y_m: 0.001
+    velocity_m_s: 0.95
+
+    tracks_per_layer: 10
+    hatch_spacing_m: 0.0001
+
+    center_x_m: 0.0
+    center_y_m: 0.0
+
+    # Scan along x in the first layer and switch to y in the second layer.
+    first_layer_direction: x
+    rotate_layers: true
+    zigzag: true
+
+time_stepping:
+  laser_on_steps_per_segment: 10
+  laser_off_steps_per_segment: 50
+
+  # Number of thermal analysis steps between mechanical solves.
+  mechanics_interval: 1
+
+output:
+  clear_vtk_directory: true
+
+materials:
+  upper_region: &in718
+    name: IN718
+
+    density_kg_m3: 8190.0
+    latent_heat_j_kg: 286000.0
+
+    # Material temperature tables in YAML use K.
+    solidus_temperature_k: 1533.0
+    liquidus_temperature_k: 1609.0
+
+    conductivity:
+      temperature_k:
+        - 298
+        - 373
+        - 473
+        - 573
+        - 673
+        - 773
+        - 873
+        - 973
+        - 1073
+        - 1173
+        - 1273
+        - 1373
+        - 1443
+        - 1609
+
+      values:
+        - 8.93
+        - 10.8
+        - 12.9
+        - 15.2
+        - 17.4
+        - 18.7
+        - 20.8
+        - 21.9
+        - 26.9
+        - 25.8
+        - 26.7
+        - 28.3
+        - 29.3
+        - 29.6
+
+    heat_capacity:
+      temperature_k:
+        - 298
+        - 373
+        - 473
+        - 573
+        - 673
+        - 773
+        - 873
+        - 973
+        - 1073
+        - 1173
+        - 1273
+        - 1373
+        - 1443
+        - 1609
+
+      values:
+        - 435
+        - 455
+        - 479
+        - 497
+        - 515
+        - 527
+        - 558
+        - 568
+        - 680
+        - 640
+        - 620
+        - 640
+        - 650
+        - 720
+
+    elastic_modulus:
+      temperature_k:
+        - 300
+        - 367
+        - 478
+        - 589
+        - 700
+        - 811
+        - 923
+        - 1033
+        - 1144
+        - 1255
+        - 1367
+        - 1672
+
+      values_gpa:
+        - 156.3
+        - 151.8
+        - 144.9
+        - 138.0
+        - 131.4
+        - 124.7
+        - 124.0
+        - 123.4
+        - 107.7
+        - 92.05
+        - 68.95
+        - 23.79
+
+    thermal_expansion:
+      temperature_k:
+        - 300
+        - 478
+        - 589
+        - 923
+        - 1033
+        - 1144
+        - 1367
+        - 1672
+
+      values_micro_per_k:
+        - 11.7
+        - 12.8
+        - 13.4
+        - 14.6
+        - 15.1
+        - 15.7
+        - 16.6
+        - 16.6
+
+    poisson_ratio:
+      temperature_k:
+        - 300
+        - 367
+        - 478
+        - 589
+        - 700
+        - 811
+        - 923
+        - 1033
+        - 1144
+        - 1255
+        - 1367
+        - 1672
+
+      values:
+        - 0.30
+        - 0.30
+        - 0.30
+        - 0.30
+        - 0.30
+        - 0.30
+        - 0.30
+        - 0.30
+        - 0.30
+        - 0.30
+        - 0.30
+        - 0.30
+
+    yield_stress:
+      temperature_k:
+        - 300
+        - 589
+        - 811
+        - 1033
+        - 1255
+
+      values_mpa:
+        - 308.9
+        - 246.3
+        - 226.1
+        - 207.7
+        - 114.0
+
+    maximum_yield_factor: 1.2
+
+    hardening_modulus:
+      temperature_k:
+        - 300
+        - 589
+        - 811
+        - 1033
+        - 1255
+
+      values_gpa:
+        - 1.0
+        - 1.0
+        - 1.0
+        - 1.0
+        - 1.0
+
+  lower_region: *in718

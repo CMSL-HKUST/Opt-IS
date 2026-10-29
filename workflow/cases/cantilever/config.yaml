@@ -1,0 +1,38 @@
+run_macro_model: true
+
+case:
+  name: cantilever_workflow
+
+# All relative paths are resolved from the directory containing this file.
+paths:
+  small_mesh: mesh/Job-10020.inp
+  large_mesh: mesh/am25.inp
+  output_directory: ../../../../opt_output/cantilever
+
+solvers:
+  am_root: ../../../am_solver
+  is_root: ../../../IS_solver
+
+reference:
+  # If vtu is unspecified, select the highest-numbered step_*.vtu from this AM run.
+  # AM saves u in mm and the optimizer uses m; multiply by 0.001 here.
+  displacement_scale_to_m: 0.001
+
+execution: {}
+  # By default, use the same Python interpreter that launches workflow/run.py.
+  # python: /path/to/conda/env/bin/python
+
+stages:
+  am:
+    config: am.yaml
+    overrides: {}
+
+  optimization:
+    config: optimization.yaml
+    # false continues the macro analysis with the current best vector if the maximum iteration count is reached.
+    require_success: false
+    overrides: {}
+
+  forward:
+    config: forward.yaml
+    overrides: {}

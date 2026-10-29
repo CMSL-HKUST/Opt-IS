@@ -1,13 +1,13 @@
-run_macro_model: true
+run_macro_model: false
 
 case:
-  name: dc_macro_workflow
+  name: dc2_macro_workflow
 
 # All relative paths are resolved from the directory containing this file.
 paths:
-  small_mesh: mesh/Job-10020.inp
-  large_mesh: mesh/am25.inp
-  output_directory: ../../../../opt_output/cantilever
+  small_mesh: mesh/Job-14030.inp
+  large_mesh: mesh/dc36.inp
+  output_directory: ../../../../opt_output/dc2
 
 solvers:
   am_root: ../../../am_solver
@@ -19,7 +19,7 @@ reference:
   displacement_scale_to_m: 0.001
 
 execution: {}
-  # By default, use the same Python interpreter that launches opt_solver/run.py.
+  # By default, use the same Python interpreter that launches workflow/run.py.
   # python: /path/to/conda/env/bin/python
 
 stages:

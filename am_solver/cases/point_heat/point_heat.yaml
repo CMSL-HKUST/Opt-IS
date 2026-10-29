@@ -1,0 +1,101 @@
+case:
+  name: point_heat
+
+mode: thermal_only
+
+runtime:
+  cuda_visible_devices: "0"
+  xla_preallocate: false
+
+paths:
+  relative_to: config
+  output_directory: ../../../../opt_output/am_solver/point_heat
+  vtk_directory: ../../../../opt_output/am_solver/point_heat/vtk
+  mesh_output: ../../../../opt_output/am_solver/point_heat/mesh/point_heat_box.vtu
+
+mesh:
+  mode: structured_box
+  element_type: HEX8
+  # Lian et al. (2023), 4.1.1: 80 x 80 x 60 HEX8 cells.
+  cells_xyz: [80, 80, 60]
+
+geometry:
+  length_x_m: 0.0002
+  length_y_m: 0.0002
+  length_z_m: 0.00015
+  substrate_bottom_z_m: 0.0
+  bottom_tolerance_m: 1.0e-8
+  material_interface_z_m: 0.0
+  base_plate_height_m: 0.0
+
+thermal:
+  initial_temperature_c: 26.85
+  # Only this case retains its configured analytical Dirichlet boundary
+  # alongside the AM activation/quiet-node boundary handling.
+  preserve_case_dirichlet: true
+  convection:
+    coefficient_w_m2k: 0.0
+    ambient_temperature_c: 26.85
+  radiation:
+    stefan_boltzmann: 5.67e-8
+    emissivity: 0.0
+    ambient_temperature_c: 26.85
+
+thermal_benchmark:
+  reference: "Lian et al. (2023), Section 4.1.1"
+  final_time_s: 0.00008
+  time_step_s: 0.0000005
+  material:
+    conductivity_w_mk: 210.0
+    initial_temperature_k: 300.0
+
+materials:
+  upper_region: &aluminum
+    name: Aluminum
+    density_kg_m3: 2700.0
+    latent_heat_j_kg: 0.0
+    solidus_temperature_k: 4000.0
+    liquidus_temperature_k: 4000.0
+    conductivity:
+      temperature_k: [300.0, 4000.0]
+      values: [210.0, 210.0]
+    heat_capacity:
+      temperature_k: [300.0, 4000.0]
+      values: [900.0, 900.0]
+  lower_region: *aluminum
+
+heat_source:
+  type: lian_gaussian_surface
+  power_w: 50.0
+  efficiency: 0.42
+  volumetric_enabled: false
+  # Inert Goldak dimensions are retained for the shared AM heat-source API.
+  front_radius_x_m: 0.00005
+  rear_radius_x_m: 0.00005
+  radius_y_m: 0.00005
+  radius_z_m: 0.00005
+  front_fraction: 1.0
+  rear_fraction: 1.0
+  surface_source:
+    enabled: true
+    radius_x_m: 0.00005
+    radius_y_m: 0.00005
+  analytical_reference:
+    power_w: 50.0
+    absorption: 0.42
+    radius_m: 0.00005
+    conductivity_w_mk: 210.0
+    initial_temperature_k: 300.0
+
+solver:
+  thermal:
+    backend: petsc
+    ksp_type: cg
+    pc_type: gamg
+    tolerance: 1.0e-8
+    relative_tolerance: 1.0e-10
+    line_search: false
+
+output:
+  clear_vtk_directory: false
+  temperature_interval_steps: 10

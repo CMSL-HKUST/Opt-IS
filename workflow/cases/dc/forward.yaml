@@ -1,0 +1,106 @@
+case:
+  name: dc_inherent_strain
+runtime:
+  cuda_visible_devices: '0'
+  enable_x64: true
+  xla_preallocate: false
+paths:
+  relative_to: config
+  mesh: mesh/dc36.inp
+  output_directory: ../../../../opt_output/dc/forward
+  vtk_directory: ../../../../opt_output/dc/forward/vtk
+mesh:
+  element_type: HEX8
+  scale_to_meter: 0.001
+geometry:
+  base_plate_height_m: 0.02
+  fixed_plane_z_m: 0.01
+  fixed_plane_tolerance_m: 0.0001
+activation:
+  z_tolerance_m: 1.0e-05
+toolpath:
+  mode: generated
+  number_of_layers: 36
+  # Coarse activation pitch for the macro DC mesh, separate from the 40 um AM layer.
+  layer_height_m: 0.000515
+  layer_duration_s: 1.0
+  scan:
+    length_m: 0.5
+    width_m: 0.03
+    y_m: 0.0
+material:
+  # Dunbar et al. (2016), PDF p.6 (journal p.113), Tables 5/6.
+  # Static IS model uses the tabulated near-room-temperature point at 21 degC.
+  # AM uses the full temperature-dependent tables in am.yaml.
+  # No quantitative hardening law is reported; H=0 is a modeling assumption.
+  elastic_modulus_pa: 2.08e11
+  poisson_ratio: 0.3
+  initial_yield_stress_pa: 1.172e9
+  hardening_modulus_pa: 0.0
+  maximum_yield_stress_pa: 1.172e9
+inherent_strain:
+  default:
+    xx: -0.005
+    yy: -0.005
+    zz: 0.005
+  increments_per_layer: 4
+  save_each_increment: false
+cutting:
+  enabled: true
+  mode: node_release
+  jobs:
+  - tag: cut_left
+    x_range_m:
+    - -0.15
+    - -0.003
+  - tag: cut_right
+    x_range_m:
+    - 0.003
+    - 0.15
+  z_cut_m: 0.0322
+  interface_tolerance_m: 1.0e-06
+  gap_m: 0.0
+  tag: cut_block
+postprocess:
+  enabled: true
+  output_directory: ../../../../opt_output/dc/forward/postprocess
+  save_plot: true
+  jobs:
+  - name: pre_cut_strain_line_1
+    source: forward
+    variables:
+    - name: eps_e_xx
+      location: cell
+    - name: eps_e_zz
+      location: cell
+    line:
+      start_m:
+      - -0.0635
+      - 0.0
+      - 0.0381
+      end_m:
+      - 0.0635
+      - 0.0
+      - 0.0381
+      num_points: 150
+  - name: post_cut_displacement_line
+    source: cutting
+    variables:
+    - name: u
+      location: point
+      components:
+      - z
+      label: displacement
+    line:
+      start_m:
+      - -0.0635
+      - 0.0
+      - 0.03835
+      end_m:
+      - 0.0635
+      - 0.0
+      - 0.03835
+      num_points: 80
+output:
+  clear_vtk_directory: true
+  displacement_scale: 1000.0

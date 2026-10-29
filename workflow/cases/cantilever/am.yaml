@@ -1,5 +1,5 @@
 # IN625 PARTIAL CORRECTION / NOT YET VALIDATED FOR PRODUCTION.
-# Source: opt_solver/1-s2.0-S2214860425003902-mmc1.docx, Table S6.
+# Source: supplementary material for article S2214860425003902, Table S6.
 # Confirmed tables below use Kelvin; blank source entries are omitted, not zero.
 # Density, phase data and cp remain UNVERIFIED legacy values (see TODOs).
 # Solver clamps outside each table: E/nu/k end at 870 degC, plastic data at 800 degC.
@@ -11,7 +11,7 @@ runtime:
   xla_preallocate: false
 paths:
   relative_to: config
-  mesh: mesh/small.inp
+  mesh: mesh/Job-10020.inp
   output_directory: ../../../../opt_output/cantilever/am
   vtk_directory: ../../../../opt_output/cantilever/am/vtk
   mesh_output: ../../../../opt_output/cantilever/am/mesh/small_mesh.vtu

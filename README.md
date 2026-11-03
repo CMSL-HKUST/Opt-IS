@@ -58,7 +58,7 @@ Archived simulations of single-track scanning, a thin-wall build, a cantilever, 
 
 ## Workflow
 
-![Opt-IS workflow: thermomechanical AM, inherent strain optimization, and macroscale forward simulation, using a shared solver configuration.](docs/media/workflow.png)
+![Opt-IS workflow: thermomechanical AM scanning, inherent strain optimization, and layer-by-layer inherent strain analysis for residual stress and distortion.](docs/media/workflow.png)
 
 | Stage | Entry point | Role |
 | :--- | :--- | :--- |

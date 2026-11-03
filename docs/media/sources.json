@@ -61,7 +61,7 @@
   "static_assets": {
     "social-preview.png": "White-background 2:1 Opt-IS conceptual cover edited with the built-in imagegen tool. Shows a local small AM model and a macroscale cantilever connected by an inherent-strain-transfer arrow. Both models use a unified blue-to-red illustrative contour palette. Typography and arrow use the website blue-gray branding. This cover is not a quantitative field plot.",
     "project-icon.png": "White-background 512x512 project image using the same recorded simulation frame.",
-    "workflow.png": "Static three-stage workflow diagram recolored with the built-in imagegen tool to match Residual Stress Hub blue-gray branding: AM -> inherent strain optimization -> macro forward, with shared solver policy. Text and diagram content preserved."
+    "workflow.png": "User-supplied workflow1.png, renamed to workflow.png to replace the previous diagram without altering the image. Shows thermomechanical AM scanning, inherent strain optimization, and layer-by-layer inherent strain analysis."
   },
   "presentation_palette": {
     "branding_source": "https://dongdaoyang.github.io/ (assets/css/residual-stress-hub.css)",
@@ -75,6 +75,11 @@
       "#f1f3f5",
       "#c42c3b"
     ],
-    "note": "Website branding applies to text and diagrams; both model contours use a separate, matching blue-white-red diverging palette."
+    "note": "Website branding applies to the cover text and arrow; both cover model contours use a matching blue-white-red diverging palette. The user-supplied workflow diagram retains its original colors."
+  },
+  "workflow_source": {
+    "original_filename": "workflow1.png",
+    "sha256": "8f0561c69cce1d0817faac61e1a33d2908af3444a499ca1ef878814e0b9b5bac",
+    "processing": "Original image bytes preserved; replaces the previous workflow.png."
   }
 }

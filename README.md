@@ -10,7 +10,9 @@
 
 **Opt-IS** is a finite element workflow for calibrating inherent strain from local additive manufacturing (AM) simulations and applying it to macroscale residual stress and distortion prediction. It connects thermomechanical process simulation, gradient-based parameter optimization, and structural analysis in one configurable pipeline.
 
-A small-scale AM simulation provides the reference stress and displacement fields. The optimizer fits the inherent strain components on the same mesh, then transfers the calibrated vector to a larger model for forward analysis, cutting, and profile extraction. JAX and JAX-FEM provide automatic differentiation and finite element infrastructure; PETSc provides the configured linear solvers.
+Opt-IS is developed on top of [JAX-FEM](https://github.com/deepmodeling/jax-fem), using [JAX](https://github.com/jax-ml/jax) for automatic differentiation.
+
+A small-scale AM simulation provides the reference stress and displacement fields. The optimizer fits the inherent strain components on the same mesh, then transfers the calibrated vector to a larger model for forward analysis, cutting, and profile extraction. PETSc provides the configured linear solvers.
 
 - **Local process simulation:** model thermal loading, material activation, and elastoplastic response during AM scanning.
 - **Inherent strain calibration:** optimize the normal strain components `xx`, `yy`, and `zz`, with optional `xx = yy` tying, against reference fields in selected regions.

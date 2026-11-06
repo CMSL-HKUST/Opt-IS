@@ -12,6 +12,8 @@
 
 Opt-IS is developed on top of [JAX-FEM](https://github.com/deepmodeling/jax-fem), using [JAX](https://github.com/jax-ml/jax) for automatic differentiation.
 
+For related benchmark cases, modeling methods, and research resources on residual stress in metal additive manufacturing, visit [Residual Stress Hub](https://rshhub.github.io/).
+
 A small-scale AM simulation provides the reference stress and displacement fields. The optimizer fits the inherent strain components on the same mesh, then transfers the calibrated vector to a larger model for forward analysis, cutting, and profile extraction. PETSc provides the configured linear solvers.
 
 - **Local process simulation:** model thermal loading, material activation, and elastoplastic response during AM scanning.
@@ -120,7 +122,7 @@ The workflow cases live in [`workflow/cases/`](workflow/cases/). Their supplied 
 | [`bridge`](workflow/cases/bridge/) | Ti-6Al-4V bridge | AM → optimization → forward | `arc36.inp` |
 | [`dc2`](workflow/cases/dc2/) | Ti-6Al-4V double-cantilever variant | AM → optimization | `dc36.inp` |
 
-The `dc` and `dc2` cases include forward configurations and macro meshes; set `run_macro_model: true` in their `config.yaml` to include that stage. Alternative macro meshes are retained in each case's `mesh/` directory. The cantilever also includes `config_power80.yaml`, a historical variant whose current power override is **156 W**.
+The `dc` and `dc2` cases include forward configurations and macro meshes; set `run_macro_model: true` in their `config.yaml` to include that stage. Alternative macro meshes are retained in each case's `mesh/` directory.
 
 Each workflow case has the same structure; the cantilever files provide an example:
 

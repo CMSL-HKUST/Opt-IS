@@ -12,7 +12,7 @@
 
 Opt-IS is developed on top of [JAX-FEM](https://github.com/deepmodeling/jax-fem), using [JAX](https://github.com/jax-ml/jax) for automatic differentiation.
 
-For related benchmark cases, modeling methods, and research resources on residual stress in metal additive manufacturing, visit [Residual Stress Hub](https://rshhub.github.io/).
+For related benchmark cases, modeling methods, and research resources on residual stress in metal additive manufacturing, visit [Residual Stress Hub](https://rshub-am.github.io/).
 
 A small-scale AM simulation provides the reference stress and displacement fields. The optimizer fits the inherent strain components on the same mesh, then transfers the calibrated vector to a larger model for forward analysis, cutting, and profile extraction. PETSc provides the configured linear solvers.
 
